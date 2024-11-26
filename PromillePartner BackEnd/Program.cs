@@ -6,24 +6,36 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<PersonRepository>();
 
 builder.Services.AddControllers();
+const string allCanGet = "AllGetOnly";
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
+    options.AddPolicy(name: allCanGet,
+                              policy =>
+                              {
+                                  policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                              });
 });
 
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddDefaultPolicy(builder =>
+//    {
+//        builder.AllowAnyOrigin()
+//               .AllowAnyMethod()
+//               .AllowAnyHeader().AllowCredentials();
+//    });
+//});
+builder.Services.AddSwaggerGen();
+builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
 //Not needed since CORS is default
-//app.UseCors(allCanGet);
-//app.UseSwagger();
-//app.UseSwaggerUI();
+app.UseCors(allCanGet);
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
