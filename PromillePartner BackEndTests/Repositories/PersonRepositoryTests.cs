@@ -18,9 +18,9 @@ namespace PromillePartner_BackEnd.Repositories.Tests
         public void TestReset()
         {
             repo = new();
-            Person input1 = new Person(-5, false, 80);
-            Person input2 = new Person(-5, true, 60);
-            Person input3 = new Person(-5, true, 90);
+            Person input1 = new Person(-5, false, 80, 17);
+            Person input2 = new Person(-5, true, 60, 19);
+            Person input3 = new Person(-5, true, 90, 22);
             repo.AddPerson(input1);
             repo.AddPerson(input2);
             repo.AddPerson(input3);
@@ -30,9 +30,9 @@ namespace PromillePartner_BackEnd.Repositories.Tests
         public void AddMultiplePerson()
         {
             //arrange
-            Person input4 = new Person(-5, false, 70);
-            Person input5 = new Person(-5, true, 100);
-            Person expected = new Person(1, false, 80);
+            Person input4 = new Person(-5, false, 70, 18);
+            Person input5 = new Person(-5, true, 100, 18);
+            Person expected = new Person(1, false, 80, 17); //expected is the first person added from the testreset method
 
             //assert
             Assert.AreEqual(3, repo.GetPersons().Count());
@@ -55,7 +55,7 @@ namespace PromillePartner_BackEnd.Repositories.Tests
         public void ThrowExceptionWhenValidateFailsOnAdd()
         {
             //arrange
-            Person input = new Person(-5, false, -8);
+            Person input = new Person(-5, false, -8, 20);
 
             //act and assert
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => repo.AddPerson(input));
@@ -65,7 +65,7 @@ namespace PromillePartner_BackEnd.Repositories.Tests
         public void GetPersonTest()
         {
             //arrange
-            Person expected = new Person(3, true, 90);
+            Person expected = new Person(3, true, 90, 22); //expected is the third person added from the testreset method
             //act
             Person result = repo.GetPerson(3);
             //assert
@@ -76,9 +76,9 @@ namespace PromillePartner_BackEnd.Repositories.Tests
         public void GetPersonsTest()
         {
             //arrange
-            Person expected1 = new Person(1, false, 80);
-            Person expected2 = new Person(2, true, 60);
-            Person expected3 = new Person(3, true, 90);
+            Person expected1 = new Person(1, false, 80, 17); //expected is the first person added from the testreset method
+            Person expected2 = new Person(2, true, 60, 19);//expected is the second person added from the testreset method
+            Person expected3 = new Person(3, true, 90, 22);//expected is the third person added from the testreset method
             //act
             IEnumerable<Person> resultList = repo.GetPersons();
             resultList = resultList.OrderBy(p => p.Id);//Sorterer resultlvisten så lavest id kommer først

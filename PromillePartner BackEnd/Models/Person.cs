@@ -17,9 +17,14 @@
         public bool Man { get; set; } //True is man, false is woman
 
         /// <summary>
-        /// Weight is in kilograms
+        /// Weight is in kilograms and needs to be at least 29 kg
         /// </summary>
         public float Weight { get; set; } //Weight in kg
+
+        /// <summary>
+        /// Age as an int between 15 and 200
+        /// </summary>
+        public int Age { get; set; }
 
         /// <summary>
         /// A constructor for person class
@@ -27,12 +32,14 @@
         /// <param name="id"></param>
         /// <param name="man"></param>
         /// <param name="weight"></param>
-        
-        public Person(int id, bool man, float weight) //constructor for person
+
+        public Person(int id, bool man, float weight, int age) //needs id, gender(bool), weight(float), age(int)
         {
             Id = id;
             Man = man;
             Weight = weight;
+            Age = age;
+
         }
 
         /// <summary>
@@ -55,6 +62,22 @@
             }
         }
 
+        /// <summary>
+        /// Age has to be between 15 and 200
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public void ValidateAge()
+        {
+            if (Age <= 15)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(Age)} cannot be less than 15");
+            }
+            if (Age >= 200)
+            {
+                throw new ArgumentOutOfRangeException($"{nameof(Age)} cannot be more than 200");
+            }
+        }
+
 
         /// <summary>
         /// Main validate method calls every other validate method this class has
@@ -63,6 +86,7 @@
         public void Validate()
         {
             ValidateWeight();
+            ValidateAge();
         }
         /// <summary>
         /// Default override of equals method
