@@ -79,7 +79,7 @@ namespace PromillePartner_BackEnd.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]  // When Person is not found
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         //[HttpPut("{id}")]
-        public ActionResult<Person> Put(int id, [FromBody] Person value)
+        public ActionResult<Person>? Put(int id, [FromBody] Person value)
         {
             return null;
 

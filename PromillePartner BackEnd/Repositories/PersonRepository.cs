@@ -35,7 +35,7 @@ namespace PromillePartner_BackEnd.Repositories
         //Get a person by id
         public Person GetPerson(int id)
         {
-            return persons.FirstOrDefault(p => p.Id == id);
+            return persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found."); ;
         }
         /// <summary>
         /// Returns the list of all persons in the repository.

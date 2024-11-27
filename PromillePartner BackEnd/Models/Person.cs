@@ -100,5 +100,10 @@
                    Man == person.Man &&
                    Weight == person.Weight;
         }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, Man, Weight);
+        }
     }
 }
