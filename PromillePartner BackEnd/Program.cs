@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSingleton<PersonRepository>();
+builder.Services.AddSingleton<PiReadingRepository>();
 
 builder.Services.AddControllers();
 const string allCanGet = "AllGetOnly";

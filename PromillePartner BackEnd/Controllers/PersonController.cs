@@ -81,42 +81,45 @@ namespace PromillePartner_BackEnd.Controllers
         //[HttpPut("{id}")]
         public ActionResult<Person> Put(int id, [FromBody] Person value)
         {
-            return null;
 
-            //if (value == null)
-            //{
-            //    return BadRequest("Person data is null.");  // Return 400 if no data is provided
-            //}
+            if (value == null)
+            {
+                return BadRequest("Person data is null.");  // Return 400 if no data is provided
+            }
 
-            //try
-            //{
-            //    // Validate the Person object
-            //    value.Validate();
-            //}
-            //catch (Exception ex)
-            //{
-            //    return BadRequest($"Validation failed: {ex.Message}");  // Return 400 with validation error message
-            //}
+            Person existingPerson;
+            try
+            {
+                // Update the person object
+                existingPerson = _repo.UpdatePerson(id, value);
+            }
+            catch (Exception ex)
+            {
+                return NotFound($"Person with id {id} not found: {ex.Message}");  // Return 404 if person is not found
+            }
 
-            //var existingPerson = _repo.GetPerson(id);
-
-            //if (existingPerson == null)
-            //{
-            //    return NotFound($"Person with ID {id} not found."); // Return 404 if the Person doesn't exist
-            //}
-
-            //// Update the person details
-            //existingPerson.Man = value.Man;
-            //existingPerson.Weight = value.Weight;
-
-            //return Ok(existingPerson); // Return 200 with the updated person object
+            return Ok(existingPerson); // Return 200 with the updated person object
         }
 
-        // DELETE api/<PersonController>/5
-       // [HttpDelete("{id}")]
-        public void Delete(int id)
+        //DELETE api/<PersonController>/5
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<Person> Delete(int id)
         {
-            throw new NotImplementedException();
+            Person deletedPerson;
+            try
+            {
+                deletedPerson = _repo.DeletePerson(id);
+            } catch(ArgumentOutOfRangeException e)
+            {
+                return BadRequest($"{e.Message}");
+            } catch(Exception e)
+            {
+                return NotFound($"{e.Message}");
+            }
+            return Ok(deletedPerson);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace PromillePartner_BackEnd.Repositories
         /// <exception cref="ArgumentNullException"></exception>
         public void AddPerson(Person person)
         {
-            if(person == null)
+            if (person == null)
             {
                 throw new ArgumentNullException($"{nameof(person)} cannot be null");
             }
@@ -50,6 +50,58 @@ namespace PromillePartner_BackEnd.Repositories
         /// </summary>
         public PersonRepository()
         {
+        }
+        /// <summary>
+        /// Id skal være større end 0, returnerer den opdaterede person hvis den opdateres.
+        /// Kaster exception hvis id er mindre end 1 eller person er null.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="person"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Person UpdatePerson(int id, Person person)
+        {
+            if (id <= 1)
+            {
+                throw new ArgumentOutOfRangeException($"{id} can not be less than 1");
+            }
+            if (person == null)
+            {
+                throw new ArgumentNullException($"{person} can not be null");
+            }
+            person.Validate();
+
+            Person foundPerson = persons.First(p => p.Id == id);
+
+            foundPerson.Age = person.Age;
+            foundPerson.Weight = person.Weight;
+            foundPerson.Man = person.Man;
+
+            return foundPerson;
+        }
+        /// <summary>
+        /// Sletter person med givne id. Id skal være større end 1.
+        /// Returnerer slettet person hvis slettet.
+        /// Kaster exception hvis person ikke findes.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="Exception"></exception>
+        public Person DeletePerson(int id)
+        {
+            if(id <= 1)
+            {
+                throw new ArgumentOutOfRangeException($"{id} can not be less than 1");
+            } 
+            Person personToBeDeleted = persons.FirstOrDefault(p => p.Id == id);
+            if (personToBeDeleted == null)
+            {
+                throw new Exception($"{nameof(personToBeDeleted)} could not find matching id");
+            }
+            persons.Remove(personToBeDeleted);
+            return personToBeDeleted;
         }
     }
 }

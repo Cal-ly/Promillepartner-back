@@ -73,6 +73,41 @@ namespace PromillePartner_BackEnd.Repositories.Tests
         }
 
         [TestMethod()]
+        public void UpdatePersonTest()
+        {
+            //arrange
+            Person expected1 = new Person(1, false, 80, 17); //expected is the first person added from the testreset method
+            Person expected2 = new Person(2, true, 60, 19);//expected is the second person added from the testreset method
+
+            Person newValues = new Person() { Age = 90, Man = false, Weight = 50 };
+            Person expectedNewValues = new Person() { Id=3, Age = 90, Man = false, Weight = 50 };
+            //act
+            Person result = repo.UpdatePerson(3, newValues);
+            IEnumerable<Person> resultList = repo.GetPersons();
+            resultList = resultList.OrderBy(p => p.Id);//Sorterer resultlisten så laveste id kommer først
+            //assert
+            Assert.AreEqual(3, resultList.Count());
+            Assert.AreEqual(expected1, resultList.ElementAt(0));
+            Assert.AreEqual(expected2, resultList.ElementAt(1));
+            Assert.AreEqual(expectedNewValues, resultList.ElementAt(2));
+            Assert.AreEqual(expectedNewValues, result);
+        }
+
+        [TestMethod()]
+        public void UpdatePersonInvalidIdTest()
+        {
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => repo.UpdatePerson(-1, new() { Man = true, Age = 40, Weight = 40}));
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => repo.UpdatePerson(0, new() { Man = true, Age = 40, Weight = 40 }));
+        }
+
+        [TestMethod()]
+        public void UpdatePersonNullArgumentTest()
+        {
+            Assert.ThrowsException<ArgumentNullException>(() => repo.UpdatePerson(3, null));
+        }
+
+        //Update method
+        [TestMethod()]
         public void GetPersonsTest()
         {
             //arrange
@@ -81,12 +116,45 @@ namespace PromillePartner_BackEnd.Repositories.Tests
             Person expected3 = new Person(3, true, 90, 22);//expected is the third person added from the testreset method
             //act
             IEnumerable<Person> resultList = repo.GetPersons();
-            resultList = resultList.OrderBy(p => p.Id);//Sorterer resultlvisten så lavest id kommer først
+            resultList = resultList.OrderBy(p => p.Id);//Sorterer resultlisten så laveste id kommer først
             //assert
             Assert.AreEqual(3, resultList.Count());
             Assert.AreEqual(expected1, resultList.ElementAt(0));
             Assert.AreEqual(expected2, resultList.ElementAt(1));
             Assert.AreEqual(expected3, resultList.ElementAt(2));
+        }
+
+        //Delete method
+        [TestMethod()]
+        public void DeletePersonTest() {
+            //arrange
+            Person expected1 = new Person(1, false, 80, 17); //expected is the first person added from the testreset method
+            Person expected2 = new Person(2, true, 60, 19);//expected is the second person added from the testreset method
+            Person expected3 = new Person(3, true, 90, 22);//expected is the third person added from the testreset method
+            //act
+            repo.DeletePerson(2); //deletes the person with id 2.
+            IEnumerable<Person> resultList = repo.GetPersons();
+            resultList = resultList.OrderBy(p => p.Id);//Sorterer resultlisten så laveste id kommer først
+            //assert
+            Assert.AreEqual(2, resultList.Count());
+            Assert.AreEqual(expected1, resultList.ElementAt(0));
+            Assert.AreEqual(expected3, resultList.ElementAt(1));
+        }
+
+        //Delete method if id is less than 1
+        [TestMethod()]
+        public void DeletePersonTestIfIdIsLessThan1()
+        {
+            //act and assert
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => repo.DeletePerson(0));
+        }
+
+        //Delete method if id is not found
+        [TestMethod()]
+        public void DeletePersonTestIfIdIsNotFound()
+        {
+            //act and assert
+            Assert.ThrowsException<Exception>(() => repo.DeletePerson(4));
         }
     }
 }
