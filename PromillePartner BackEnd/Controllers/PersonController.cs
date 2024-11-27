@@ -11,22 +11,15 @@ namespace PromillePartner_BackEnd.Controllers;
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
-public class PersonController : ControllerBase
+public class PersonController(PersonRepository repo) : ControllerBase
 {
-    private readonly PersonRepository _repo;
-
-    public PersonController(PersonRepository repo) // Dependency injection
-    {
-        _repo = repo;
-    }
-
     // GET: api/<PersonController>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet]
     public ActionResult<IEnumerable<Person>> GetAll()
     {
-        var persons = _repo.GetPersons();
+        var persons = repo.GetPersons();
         if (!persons.Any())
         {
             return NotFound("No persons found.");
@@ -42,7 +35,7 @@ public class PersonController : ControllerBase
     {
         try
         {
-            var person = _repo.GetPerson(id);
+            var person = repo.GetPerson(id);
             return Ok(person);
         }
         catch (KeyNotFoundException ex)
@@ -63,7 +56,7 @@ public class PersonController : ControllerBase
         }
         try
         {
-            _repo.AddPerson(value);
+            repo.AddPerson(value);
             return CreatedAtAction(nameof(Get), new { id = value.Id }, value);
         }
         catch (Exception ex)
@@ -85,7 +78,7 @@ public class PersonController : ControllerBase
         }
         try
         {
-            var updatedPerson = _repo.UpdatePerson(id, value);
+            var updatedPerson = repo.UpdatePerson(id, value);
             return Ok(updatedPerson);
         }
         catch (ArgumentOutOfRangeException ex)
@@ -107,7 +100,7 @@ public class PersonController : ControllerBase
     {
         try
         {
-            var deletedPerson = _repo.DeletePerson(id);
+            var deletedPerson = repo.DeletePerson(id);
             return Ok(deletedPerson);
         }
         catch (ArgumentOutOfRangeException ex)

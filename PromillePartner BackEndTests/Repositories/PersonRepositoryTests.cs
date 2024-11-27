@@ -23,8 +23,8 @@ namespace PromillePartner_BackEnd.Repositories.Tests
             repo.AddPerson(person);
 
             // Assert
-            Assert.AreEqual(1, repo.GetPersons().Count());
-            Assert.AreEqual(person, repo.GetPerson(1));
+            Assert.AreEqual(person.Id, repo.GetPersons().Count());
+            Assert.AreEqual(person, repo.GetPerson(person.Id));
         }
 
         [TestMethod]
@@ -42,7 +42,7 @@ namespace PromillePartner_BackEnd.Repositories.Tests
             repo.AddPerson(person);
 
             // Act
-            var result = repo.GetPerson(1);
+            var result = repo.GetPerson(person.Id);
 
             // Assert
             Assert.AreEqual(person, result);
@@ -51,14 +51,18 @@ namespace PromillePartner_BackEnd.Repositories.Tests
         [TestMethod]
         public void GetPerson_InvalidId_ThrowsKeyNotFoundException()
         {
+            // Arrange
+            int initialCount = repo.GetPersons().Count();
+
             // Act & Assert
-            Assert.ThrowsException<KeyNotFoundException>(() => repo.GetPerson(1));
+            Assert.ThrowsException<KeyNotFoundException>(() => repo.GetPerson(initialCount + 1));
         }
 
         [TestMethod]
         public void GetPersons_ReturnsAllPersons()
         {
             // Arrange
+            int initialCount = repo.GetPersons().Count();
             var person1 = new Person { Age = 25, Weight = 70, Man = true };
             var person2 = new Person { Age = 30, Weight = 80, Man = false };
             repo.AddPerson(person1);
@@ -68,7 +72,7 @@ namespace PromillePartner_BackEnd.Repositories.Tests
             var result = repo.GetPersons();
 
             // Assert
-            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual(initialCount + 2, result.Count());
             CollectionAssert.Contains(result.ToList(), person1);
             CollectionAssert.Contains(result.ToList(), person2);
         }
@@ -82,7 +86,7 @@ namespace PromillePartner_BackEnd.Repositories.Tests
             var updatedPerson = new Person { Age = 30, Weight = 75, Man = false };
 
             // Act
-            var result = repo.UpdatePerson(1, updatedPerson);
+            var result = repo.UpdatePerson(person.Id, updatedPerson);
 
             // Assert
             Assert.AreEqual(updatedPerson.Age, result.Age);
@@ -108,15 +112,16 @@ namespace PromillePartner_BackEnd.Repositories.Tests
         public void DeletePerson_ValidId_DeletesPerson()
         {
             // Arrange
+            int initialCount = repo.GetPersons().Count();
             var person = new Person { Age = 25, Weight = 70, Man = true };
             repo.AddPerson(person);
 
             // Act
-            var result = repo.DeletePerson(1);
+            var result = repo.DeletePerson(person.Id);
 
             // Assert
             Assert.AreEqual(person, result);
-            Assert.AreEqual(0, repo.GetPersons().Count());
+            Assert.AreEqual(initialCount, repo.GetPersons().Count());
         }
 
         [TestMethod]

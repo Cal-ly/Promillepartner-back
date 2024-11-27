@@ -8,7 +8,7 @@ namespace PromillePartner_BackEnd.Repositories;
 /// </summary>
 public class PersonRepository
 {
-    private static readonly List<Person> _persons = [];
+    private static readonly List<Person> _persons = Data.MockData.MockPerson.GetMockPersons();
 
     /// <summary>
     /// This method adds a person to the list of persons in the repository

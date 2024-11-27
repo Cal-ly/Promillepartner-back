@@ -12,16 +12,6 @@ builder.Services.AddControllers();
 const string allCanGet = "AllGetOnly";
 builder.Services.AddCors(options => options.AddPolicy(name: allCanGet, policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddDefaultPolicy(builder =>
-//    {
-//        builder.AllowAnyOrigin()
-//               .AllowAnyMethod()
-//               .AllowAnyHeader().AllowCredentials();
-//    });
-//});
-
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
@@ -36,8 +26,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-var personRepository = app.Services.GetRequiredService<PersonRepository>();
-if (!personRepository.GetPersons().Any())
-    MockPerson.AddMockPersonsToRepository(personRepository);
+//var personRepository = app.Services.GetRequiredService<PersonRepository>();
+//if (!personRepository.GetPersons().Any())
+//    MockPerson.AddMockPersonsToRepository(personRepository);
 
 app.Run();
