@@ -23,7 +23,7 @@ public class PersonRepository
             throw new ArgumentNullException(nameof(person), "Person cannot be null");
         }
         person.Validate();
-        person.Id = _persons.Count + 1;
+        person.Id = _persons.Any() ? _persons.Max(p => p.Id) + 1 : 1;
         _persons.Add(person);
     }
 
@@ -44,7 +44,7 @@ public class PersonRepository
     /// <returns></returns>
     public IEnumerable<Person> GetPersons()
     {
-        return _persons;
+        return new List<Person>(_persons);
     }
 
     /// <summary>
