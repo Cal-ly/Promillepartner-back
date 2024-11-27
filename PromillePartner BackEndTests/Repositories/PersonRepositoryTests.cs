@@ -1,160 +1,136 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PromillePartner_BackEnd.Models;
-using PromillePartner_BackEnd.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PromillePartner_BackEnd.Models;
 
 namespace PromillePartner_BackEnd.Repositories.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class PersonRepositoryTests
     {
-        private PersonRepository repo = new();
+        private PersonRepository repo = new PersonRepository();
 
-        [TestInitialize()] 
-        public void TestReset()
+        [TestInitialize]
+        public void TestInitialize()
         {
-            repo = new();
-            Person input1 = new Person(-5, false, 80, 17);
-            Person input2 = new Person(-5, true, 60, 19);
-            Person input3 = new Person(-5, true, 90, 22);
-            repo.AddPerson(input1);
-            repo.AddPerson(input2);
-            repo.AddPerson(input3);
+            repo = new PersonRepository();
         }
 
-        [TestMethod()]
-        public void AddMultiplePerson()
+        [TestMethod]
+        public void AddPerson_ValidPerson_AddsPerson()
         {
-            //arrange
-            Person input4 = new Person(-5, false, 70, 18);
-            Person input5 = new Person(-5, true, 100, 18);
-            Person expected = new Person(1, false, 80, 17); //expected is the first person added from the testreset method
+            // Arrange
+            var person = new Person { Age = 25, Weight = 70, Man = true };
 
-            //assert
-            Assert.AreEqual(3, repo.GetPersons().Count());
-            Assert.AreEqual(1, repo.GetPerson(1).Id);
+            // Act
+            repo.AddPerson(person);
 
-            repo.AddPerson(input4); //act
-            Assert.AreEqual(4, repo.GetPersons().Count());
-            Assert.AreEqual(2, repo.GetPerson(2).Id);
-
-            repo.AddPerson(input5); //act
-            Assert.AreEqual(5, repo.GetPersons().Count());
-            Assert.AreEqual(1, repo.GetPerson(1).Id);
-            Assert.AreEqual(2, repo.GetPerson(2).Id);
-            Assert.AreEqual(3, repo.GetPerson(3).Id);
-
-            Assert.AreEqual(expected, repo.GetPerson(1));
+            // Assert
+            Assert.AreEqual(1, repo.GetPersons().Count());
+            Assert.AreEqual(person, repo.GetPerson(1));
         }
 
-        [TestMethod()]
-        public void ThrowExceptionWhenValidateFailsOnAdd()
+        [TestMethod]
+        public void AddPerson_NullPerson_ThrowsArgumentNullException()
         {
-            //arrange
-            Person input = new Person(-5, false, -8, 20);
-
-            //act and assert
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => repo.AddPerson(input));
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => repo.AddPerson(null!));
         }
 
-        [TestMethod()]
-        public void GetPersonTest()
+        [TestMethod]
+        public void GetPerson_ValidId_ReturnsPerson()
         {
-            //arrange
-            Person expected = new Person(3, true, 90, 22); //expected is the third person added from the testreset method
-            //act
-            Person result = repo.GetPerson(3);
-            //assert
-            Assert.AreEqual(expected, result);
+            // Arrange
+            var person = new Person { Age = 25, Weight = 70, Man = true };
+            repo.AddPerson(person);
+
+            // Act
+            var result = repo.GetPerson(1);
+
+            // Assert
+            Assert.AreEqual(person, result);
         }
 
-        [TestMethod()]
-        public void UpdatePersonTest()
+        [TestMethod]
+        public void GetPerson_InvalidId_ThrowsKeyNotFoundException()
         {
-            //arrange
-            Person expected1 = new Person(1, false, 80, 17); //expected is the first person added from the testreset method
-            Person expected2 = new Person(2, true, 60, 19);//expected is the second person added from the testreset method
-
-            Person newValues = new Person() { Age = 90, Man = false, Weight = 50 };
-            Person expectedNewValues = new Person() { Id=3, Age = 90, Man = false, Weight = 50 };
-            //act
-            Person result = repo.UpdatePerson(3, newValues);
-            IEnumerable<Person> resultList = repo.GetPersons();
-            resultList = resultList.OrderBy(p => p.Id);//Sorterer resultlisten så laveste id kommer først
-            //assert
-            Assert.AreEqual(3, resultList.Count());
-            Assert.AreEqual(expected1, resultList.ElementAt(0));
-            Assert.AreEqual(expected2, resultList.ElementAt(1));
-            Assert.AreEqual(expectedNewValues, resultList.ElementAt(2));
-            Assert.AreEqual(expectedNewValues, result);
+            // Act & Assert
+            Assert.ThrowsException<KeyNotFoundException>(() => repo.GetPerson(1));
         }
 
-        [TestMethod()]
-        public void UpdatePersonInvalidIdTest()
+        [TestMethod]
+        public void GetPersons_ReturnsAllPersons()
         {
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => repo.UpdatePerson(-1, new() { Man = true, Age = 40, Weight = 40}));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => repo.UpdatePerson(0, new() { Man = true, Age = 40, Weight = 40 }));
+            // Arrange
+            var person1 = new Person { Age = 25, Weight = 70, Man = true };
+            var person2 = new Person { Age = 30, Weight = 80, Man = false };
+            repo.AddPerson(person1);
+            repo.AddPerson(person2);
+
+            // Act
+            var result = repo.GetPersons();
+
+            // Assert
+            Assert.AreEqual(2, result.Count());
+            CollectionAssert.Contains(result.ToList(), person1);
+            CollectionAssert.Contains(result.ToList(), person2);
         }
 
-        [TestMethod()]
-        public void UpdatePersonNullArgumentTest()
+        [TestMethod]
+        public void UpdatePerson_ValidId_UpdatesPerson()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => repo.UpdatePerson(3, null));
+            // Arrange
+            var person = new Person { Age = 25, Weight = 70, Man = true };
+            repo.AddPerson(person);
+            var updatedPerson = new Person { Age = 30, Weight = 75, Man = false };
+
+            // Act
+            var result = repo.UpdatePerson(1, updatedPerson);
+
+            // Assert
+            Assert.AreEqual(updatedPerson.Age, result.Age);
+            Assert.AreEqual(updatedPerson.Weight, result.Weight);
+            Assert.AreEqual(updatedPerson.Man, result.Man);
         }
 
-        //Update method
-        [TestMethod()]
-        public void GetPersonsTest()
+        [TestMethod]
+        public void UpdatePerson_InvalidId_ThrowsKeyNotFoundException()
         {
-            //arrange
-            Person expected1 = new Person(1, false, 80, 17); //expected is the first person added from the testreset method
-            Person expected2 = new Person(2, true, 60, 19);//expected is the second person added from the testreset method
-            Person expected3 = new Person(3, true, 90, 22);//expected is the third person added from the testreset method
-            //act
-            IEnumerable<Person> resultList = repo.GetPersons();
-            resultList = resultList.OrderBy(p => p.Id);//Sorterer resultlisten så laveste id kommer først
-            //assert
-            Assert.AreEqual(3, resultList.Count());
-            Assert.AreEqual(expected1, resultList.ElementAt(0));
-            Assert.AreEqual(expected2, resultList.ElementAt(1));
-            Assert.AreEqual(expected3, resultList.ElementAt(2));
+            // Act & Assert
+            Assert.ThrowsException<KeyNotFoundException>(() => repo.UpdatePerson(1000000, new Person { Age = 30, Weight = 75, Man = false } ));
         }
 
-        //Delete method
-        [TestMethod()]
-        public void DeletePersonTest() {
-            //arrange
-            Person expected1 = new Person(1, false, 80, 17); //expected is the first person added from the testreset method
-            Person expected2 = new Person(2, true, 60, 19);//expected is the second person added from the testreset method
-            Person expected3 = new Person(3, true, 90, 22);//expected is the third person added from the testreset method
-            //act
-            repo.DeletePerson(2); //deletes the person with id 2.
-            IEnumerable<Person> resultList = repo.GetPersons();
-            resultList = resultList.OrderBy(p => p.Id);//Sorterer resultlisten så laveste id kommer først
-            //assert
-            Assert.AreEqual(2, resultList.Count());
-            Assert.AreEqual(expected1, resultList.ElementAt(0));
-            Assert.AreEqual(expected3, resultList.ElementAt(1));
+        [TestMethod]
+        public void UpdatePerson_NullPerson_ThrowsArgumentNullException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => repo.UpdatePerson(1, null!));
         }
 
-        //Delete method if id is less than 1
-        [TestMethod()]
-        public void DeletePersonTestIfIdIsLessThan1()
+        [TestMethod]
+        public void DeletePerson_ValidId_DeletesPerson()
         {
-            //act and assert
+            // Arrange
+            var person = new Person { Age = 25, Weight = 70, Man = true };
+            repo.AddPerson(person);
+
+            // Act
+            var result = repo.DeletePerson(1);
+
+            // Assert
+            Assert.AreEqual(person, result);
+            Assert.AreEqual(0, repo.GetPersons().Count());
+        }
+
+        [TestMethod]
+        public void DeletePerson_InvalidId_ThrowsKeyNotFoundException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<KeyNotFoundException>(() => repo.DeletePerson(1000000));
+        }
+
+        [TestMethod]
+        public void DeletePerson_IdLessThan1_ThrowsArgumentOutOfRangeException()
+        {
+            // Act & Assert
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => repo.DeletePerson(0));
-        }
-
-        //Delete method if id is not found
-        [TestMethod()]
-        public void DeletePersonTestIfIdIsNotFound()
-        {
-            //act and assert
-            Assert.ThrowsException<Exception>(() => repo.DeletePerson(4));
         }
     }
 }

@@ -8,8 +8,8 @@ namespace PromillePartner_BackEnd.Repositories;
 /// </summary>
 public class PersonRepository
 {
-    //List of all persons
-    private List<Person> persons = new List<Person>();
+    private static readonly List<Person> _persons = [];
+
     /// <summary>
     /// This method adds a person to the list of persons in the repository
     /// It runs validate from the person class before adding.
@@ -20,40 +20,37 @@ public class PersonRepository
     {
         if (person == null)
         {
-            throw new ArgumentNullException($"{nameof(person)} cannot be null");
+            throw new ArgumentNullException(nameof(person), "Person cannot be null");
         }
         person.Validate();
-        person.Id = persons.Count() + 1;
-        persons.Add(person);
+        person.Id = _persons.Count + 1;
+        _persons.Add(person);
     }
+
     /// <summary>
-    /// Get person by Id. If no person is found, null is returned.
+    /// Get person by Id. If no person is found, an exception is thrown.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-
-    //Get a person by id
+    /// <exception cref="KeyNotFoundException"></exception>
     public Person GetPerson(int id)
     {
-        return persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found."); ;
+        return _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
     }
+
     /// <summary>
     /// Returns the list of all persons in the repository.
     /// </summary>
     /// <returns></returns>
     public IEnumerable<Person> GetPersons()
     {
-        return persons;
+        return _persons;
     }
+
     /// <summary>
-    /// Empty constructor for the repository.
-    /// </summary>
-    public PersonRepository()
-    {
-    }
-    /// <summary>
-    /// Id skal være større end 0, returnerer den opdaterede person hvis den opdateres.
-    /// Kaster exception hvis id er mindre end 1 eller person er null.
+    /// Updates a person with the given id. Id must be greater than 0.
+    /// Returns the updated person if successful.
+    /// Throws exception if id is less than 1 or person is null.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="person"></param>
@@ -62,17 +59,17 @@ public class PersonRepository
     /// <exception cref="ArgumentNullException"></exception>
     public Person UpdatePerson(int id, Person person)
     {
-        if (id <= 1)
+        if (id < 1)
         {
-            throw new ArgumentOutOfRangeException($"{id} can not be less than 1");
+            throw new ArgumentOutOfRangeException(nameof(id), "Id cannot be less than 1");
         }
         if (person == null)
         {
-            throw new ArgumentNullException($"{person} can not be null");
+            throw new ArgumentNullException(nameof(person), "Person cannot be null");
         }
         person.Validate();
 
-        Person foundPerson = persons.First(p => p.Id == id);
+        var foundPerson = _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
 
         foundPerson.Age = person.Age;
         foundPerson.Weight = person.Weight;
@@ -80,23 +77,24 @@ public class PersonRepository
 
         return foundPerson;
     }
+
     /// <summary>
-    /// Sletter person med givne id. Id skal være større end 1.
-    /// Returnerer slettet person hvis slettet.
-    /// Kaster exception hvis person ikke findes.
+    /// Deletes a person with the given id. Id must be greater than 0.
+    /// Returns the deleted person if successful.
+    /// Throws exception if person is not found.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    /// <exception cref="Exception"></exception>
+    /// <exception cref="KeyNotFoundException"></exception>
     public Person DeletePerson(int id)
     {
-        if(id <= 1)
+        if (id < 1)
         {
-            throw new ArgumentOutOfRangeException($"{id} can not be less than 1");
+            throw new ArgumentOutOfRangeException(nameof(id), "Id cannot be less than 1");
         }
-        Person personToBeDeleted = persons.FirstOrDefault(p => p.Id == id) ?? throw new Exception($"{nameof(personToBeDeleted)} could not find matching id");
-        persons.Remove(personToBeDeleted);
+        var personToBeDeleted = _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
+        _persons.Remove(personToBeDeleted);
         return personToBeDeleted;
     }
 }

@@ -20,7 +20,7 @@ namespace PromillePartner_BackEnd.Repositories
 
         public PiReading GetPiReading(int id)
         {
-            return _PiReadingList.FirstOrDefault(p => p.Id == id);
+            return _PiReadingList.FirstOrDefault(p => p.Id == id) ?? throw new InvalidOperationException($"PiReading with id {id} not found.");
         }
 
         public IEnumerable<PiReading> GetPiReadings()
