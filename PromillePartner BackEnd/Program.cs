@@ -7,16 +7,9 @@ builder.Services.AddSingleton<PersonRepository>();
 builder.Services.AddSingleton<PiReadingRepository>();
 
 builder.Services.AddControllers();
-const string allCanGet = "AllGetOnly";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: allCanGet,
-                              policy =>
-                              {
-                                  policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-                              });
-});
 
+const string allCanGet = "AllGetOnly";
+builder.Services.AddCors(options => options.AddPolicy(name: allCanGet, policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 //builder.Services.AddCors(options =>
 //{
@@ -27,6 +20,7 @@ builder.Services.AddCors(options =>
 //               .AllowAnyHeader().AllowCredentials();
 //    });
 //});
+
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
