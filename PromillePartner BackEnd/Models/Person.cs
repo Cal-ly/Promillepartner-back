@@ -32,7 +32,6 @@
         /// <param name="id"></param>
         /// <param name="man"></param>
         /// <param name="weight"></param>
-
         public Person(int id, bool man, float weight, int age) //needs id, gender(bool), weight(float), age(int)
         {
             Id = id;

@@ -1,3 +1,4 @@
+using PromillePartner_BackEnd.Data.MockData;
 using PromillePartner_BackEnd.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,5 +38,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+var personRepository = app.Services.GetRequiredService<PersonRepository>();
+if (!personRepository.GetPersons().Any())
+    MockPerson.AddMockPersonsToRepository(personRepository);
 
 app.Run();

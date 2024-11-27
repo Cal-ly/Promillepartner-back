@@ -71,7 +71,7 @@ namespace PromillePartner_BackEnd.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]  // When PiReading is not found
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         //[HttpPut("{id}")]
-        public ActionResult<PiReading> Put(int id, [FromBody] PiReading value)
+        public ActionResult<PiReading>? Put(int id, [FromBody] PiReading value)
         {
             return null;
             //if (value == null)
@@ -98,7 +98,7 @@ namespace PromillePartner_BackEnd.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<PiReading> Delete(int id)
+        public ActionResult<PiReading>? Delete(int id)
         {
             return null;
             //PiReading deletedPiReading;
