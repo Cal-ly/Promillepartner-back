@@ -8,7 +8,12 @@ namespace PromillePartner_BackEnd.Repositories;
 /// </summary>
 public class PersonRepository
 {
-    private static readonly List<Person> _persons = Data.MockData.MockPerson.GetMockPersons();
+    private readonly List<Person> _persons;
+
+    public PersonRepository()
+    {
+        _persons = Data.MockData.MockPerson.GetMockPersons();
+    }
 
     /// <summary>
     /// This method adds a person to the list of persons in the repository
@@ -23,6 +28,7 @@ public class PersonRepository
             throw new ArgumentNullException(nameof(person), "Person cannot be null");
         }
         person.Validate();
+        //denne funktion er bedre end count() i tilfælde når vi sletter elementer fra lister
         person.Id = _persons.Any() ? _persons.Max(p => p.Id) + 1 : 1;
         _persons.Add(person);
     }
@@ -35,6 +41,7 @@ public class PersonRepository
     /// <exception cref="KeyNotFoundException"></exception>
     public Person GetPerson(int id)
     {
+        //den smider nu en exception der fortæller at den ikke kunne finde personen med det navn
         return _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
     }
 
@@ -44,6 +51,7 @@ public class PersonRepository
     /// <returns></returns>
     public IEnumerable<Person> GetPersons()
     {
+        //returnerer en kopi en liste over person, det enkelte person objekt kan stadig redigeres med den de kan nu ikke tilføje og slette fra liste
         return new List<Person>(_persons);
     }
 
