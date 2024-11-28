@@ -1,4 +1,6 @@
-﻿using PromillePartner_BackEnd.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using PromillePartner_BackEnd.Models;
+using System;
 
 namespace PromillePartner_BackEnd.Repositories;
 
@@ -21,7 +23,7 @@ public class PersonRepository
     /// </summary>
     /// <param name="person"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public void AddPerson(Person person)
+    public async void AddPerson(Person person)
     {
         if (person == null)
         {
@@ -29,8 +31,13 @@ public class PersonRepository
         }
         person.Validate();
         //denne funktion er bedre end count() i tilfælde når vi sletter elementer fra lister
-        person.Id = _persons.Any() ? _persons.Max(p => p.Id) + 1 : 1;
+        //person.Id = _persons.Any() ? _persons.Max(p => p.Id) + 1 : 1;
         _persons.Add(person);
+        using (var context = new VoresDbContext())
+        {
+            context.Add(person);
+            await context.SaveChangesAsync();
+        }
     }
 
     /// <summary>
@@ -39,19 +46,27 @@ public class PersonRepository
     /// <param name="id"></param>
     /// <returns></returns>
     /// <exception cref="KeyNotFoundException"></exception>
-    public Person GetPerson(int id)
+    public async Task<Person> GetPerson(int id)
     {
         //den smider nu en exception der fortæller at den ikke kunne finde personen med det navn
-        return _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
+        using (var context = new VoresDbContext())
+        {
+            return await context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id);
+        }
+        //return _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
     }
 
     /// <summary>
     /// Returns the list of all persons in the repository.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<Person> GetPersons()
+    public async Task<IEnumerable<Person>> GetPersons()
     {
         //returnerer en kopi en liste over person, det enkelte person objekt kan stadig redigeres med den de kan nu ikke tilføje og slette fra liste
+        using (var context = new VoresDbContext())
+        {
+            return await context.Set<Person>().AsNoTracking().ToListAsync();
+        }
         return new List<Person>(_persons);
     }
 
@@ -65,7 +80,7 @@ public class PersonRepository
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    public Person UpdatePerson(int id, Person person)
+    public async Task<Person> UpdatePerson(int id, Person person)
     {
         if (id < 1)
         {
@@ -77,13 +92,25 @@ public class PersonRepository
         }
         person.Validate();
 
-        var foundPerson = _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
+        using (var context = new VoresDbContext())
+        {
+            Person foundPerson = await context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id);
+            foundPerson.Man = person.Man;
+            foundPerson.Weight = person.Weight;
+            foundPerson.Age = person.Age;
+            //creates new entry if it found no match
+            //context.Set<Person>().Update(person);
+            await context.SaveChangesAsync();
+            return foundPerson;
+        }
 
-        foundPerson.Age = person.Age;
-        foundPerson.Weight = person.Weight;
-        foundPerson.Man = person.Man;
+        //var foundPerson = _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
 
-        return foundPerson;
+        //foundPerson.Age = person.Age;
+        //foundPerson.Weight = person.Weight;
+        //foundPerson.Man = person.Man;
+
+        
     }
 
     /// <summary>
@@ -95,14 +122,21 @@ public class PersonRepository
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <exception cref="KeyNotFoundException"></exception>
-    public Person DeletePerson(int id)
+    public async Task<Person> DeletePerson(int id)
     {
+        
         if (id < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(id), "Id cannot be less than 1");
         }
-        var personToBeDeleted = _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
-        _persons.Remove(personToBeDeleted);
-        return personToBeDeleted;
+        using (var context = new VoresDbContext())
+        {
+            Person foundPerson = await context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id);
+            context.Set<Person>().Remove(foundPerson);
+            await context.SaveChangesAsync();
+            return null;
+        }
+        //var personToBeDeleted = _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
+        //_persons.Remove(personToBeDeleted);
     }
 }

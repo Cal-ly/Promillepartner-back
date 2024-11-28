@@ -1,4 +1,7 @@
-﻿namespace PromillePartner_BackEnd.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace PromillePartner_BackEnd.Models
 {
     /// <summary>
     /// This is a class for a person. Id is handled by the repository. Gender is a boolean where man is true.
@@ -9,6 +12,8 @@
         /// <summary>
         /// This is Id for the person. It is handled by the repository.
         /// </summary>
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         /// <summary>

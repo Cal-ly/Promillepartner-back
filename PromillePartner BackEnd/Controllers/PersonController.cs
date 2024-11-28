@@ -19,7 +19,7 @@ public class PersonController(PersonRepository repo) : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<Person>> GetAll()
     {
-        var persons = repo.GetPersons();
+        var persons = repo.GetPersons().Result;
         if (!persons.Any())
         {
             return NotFound("No persons found.");
@@ -35,7 +35,7 @@ public class PersonController(PersonRepository repo) : ControllerBase
     {
         try
         {
-            var person = repo.GetPerson(id);
+            var person = repo.GetPerson(id).Result;
             return Ok(person);
         }
         catch (KeyNotFoundException ex)
@@ -78,7 +78,7 @@ public class PersonController(PersonRepository repo) : ControllerBase
         }
         try
         {
-            var updatedPerson = repo.UpdatePerson(id, value);
+            var updatedPerson = repo.UpdatePerson(id, value).Result;
             return Ok(updatedPerson);
         }
         catch (ArgumentOutOfRangeException ex)
@@ -100,7 +100,7 @@ public class PersonController(PersonRepository repo) : ControllerBase
     {
         try
         {
-            var deletedPerson = repo.DeletePerson(id);
+            Person deletedPerson = repo.DeletePerson(id).Result;
             return Ok(deletedPerson);
         }
         catch (ArgumentOutOfRangeException ex)

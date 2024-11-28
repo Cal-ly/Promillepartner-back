@@ -1,8 +1,13 @@
-﻿namespace PromillePartner_BackEnd.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace PromillePartner_BackEnd.Models
 {
     public class PiReading
     {
 
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public long TimeStampMiliseconds { get; set; }
         public double Promille { get; set; }
