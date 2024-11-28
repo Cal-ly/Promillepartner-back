@@ -8,7 +8,7 @@ namespace PromillePartner_BackEnd
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             //connect to database on local computer
-            options.UseSqlServer(@"Data Source=localhost;Initial Catalog=TestDatabase2; Integrated Security=True; Connect Timeout=30; Encrypt=False");
+            options.UseSqlServer(@"Data Source=mssql4.unoeuro.com;Initial Catalog=tensormind_dk_db_pp; User Id=tensormind_dk; Password=hFkgbaAHeEmRxyGzdD64; TrustServerCertificate=true");
         }
 
         //case sensitiv i koden, den smider ikke hvis den ikke kan finde tabellen

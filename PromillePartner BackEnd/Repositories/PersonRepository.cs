@@ -23,7 +23,7 @@ public class PersonRepository
     /// </summary>
     /// <param name="person"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public async void AddPerson(Person person)
+    public async Task<Person> AddPerson(Person person)
     {
         if (person == null)
         {
@@ -37,6 +37,7 @@ public class PersonRepository
         {
             context.Add(person);
             await context.SaveChangesAsync();
+            return person;
         }
     }
 
