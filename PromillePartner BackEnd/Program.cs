@@ -13,9 +13,6 @@ builder.Services.AddScoped<PiReadingRepository>();
 
 builder.Services.AddControllers();
 
-//const string allCanGet = "AllGetOnly";
-//builder.Services.AddCors(options => options.AddPolicy(name: allCanGet, policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
-
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
@@ -30,7 +27,6 @@ builder.Services.AddCors(options =>
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
-
 
 app.UseCors();
 app.UseSwagger();
