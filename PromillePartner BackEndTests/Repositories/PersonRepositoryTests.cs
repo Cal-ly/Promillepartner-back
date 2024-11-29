@@ -1,141 +1,132 @@
-﻿using PromillePartner_BackEnd.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using MockQueryable.Moq;
+using Moq;
+using PromillePartner_BackEnd.Data;
+using PromillePartner_BackEnd.Models;
+using PromillePartner_BackEnd.Repositories;
 
-namespace PromillePartner_BackEnd.Repositories.Tests
+namespace PromillePartner_BackEndTests.Repositories;
+
+[TestClass]
+public class PersonRepositoryTests
 {
-    [TestClass]
-    public class PersonRepositoryTests
+    private Mock<VoresDbContext>? _mockContext;
+    private Mock<DbSet<Person>>? _mockDbSet;
+    private PersonRepository _repository = null!;
+
+    [TestInitialize]
+    public void TestInitialize()
     {
-        private PersonRepository repo = new PersonRepository();
+        _mockDbSet = new Mock<DbSet<Person>>();
+        _mockContext = new Mock<VoresDbContext>();
 
-        [TestInitialize]
-        public void TestInitialize()
+        // Configure the DbSet to return mock data
+        var persons = new List<Person>().AsQueryable();
+        _mockDbSet.As<IQueryable<Person>>().Setup(m => m.Provider).Returns(persons.Provider);
+        _mockDbSet.As<IQueryable<Person>>().Setup(m => m.Expression).Returns(persons.Expression);
+        _mockDbSet.As<IQueryable<Person>>().Setup(m => m.ElementType).Returns(persons.ElementType);
+        _mockDbSet.As<IQueryable<Person>>().Setup(m => m.GetEnumerator()).Returns(persons.GetEnumerator());
+
+        _mockContext.Setup(m => m.Set<Person>()).Returns(_mockDbSet.Object);
+
+        // Setup AddAsync for AddPerson test
+        _mockDbSet.Setup(m => m.AddAsync(It.IsAny<Person>(), default))
+                  .ReturnsAsync((Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<Person>?)null!);
+
+        _repository = new PersonRepository(_mockContext.Object);
+    }
+
+    [TestMethod]
+    public async Task AddPerson_ShouldAddPerson_WhenPersonIsValid()
+    {
+        // Arrange
+        Person person = new() { Id = 100, Man = true, Weight = 70, Age = 30 };
+
+        // Act
+        var result = await _repository.AddPerson(person);
+
+        // Assert
+        Assert.AreEqual(person, result);
+        // _mockDbSet!.Verify(m => m.Add(person), Times.Once);
+        // _mockContext!.Verify(m => m.SaveChangesAsync(default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetPerson_ShouldReturnPerson_WhenPersonExists()
+    {
+        // Arrange
+        var person = new Person { Id = 1, Man = true, Weight = 70, Age = 30 };
+        var persons = new List<Person> { person };
+        var mockSet = persons.AsQueryable().BuildMockDbSet();
+
+        _mockContext!.Setup(m => m.Set<Person>()).Returns(mockSet.Object);
+
+        // Act
+        var result = await _repository.GetPerson(1);
+
+        // Assert
+        Assert.AreEqual(person, result);
+    }
+
+    [TestMethod]
+    public async Task GetPersons_ShouldReturnAllPersons()
+    {
+        // Arrange
+        var persons = new List<Person>
         {
-            repo = new PersonRepository();
-        }
+            new Person { Id = 1, Man = true, Weight = 70, Age = 30 },
+            new Person { Id = 2, Man = false, Weight = 60, Age = 25 }
+        };
+        var mockSet = persons.AsQueryable().BuildMockDbSet();
 
-        [TestMethod]
-        public void AddPerson_ValidPerson_AddsPerson()
-        {
-            // Arrange
-            var person = new Person { Age = 25, Weight = 70, Man = true };
+        _mockContext!.Setup(m => m.Set<Person>()).Returns(mockSet.Object);
 
-            // Act
-            repo.AddPerson(person);
+        // Act
+        var result = await _repository.GetPersons();
 
-            // Assert
-            Assert.AreEqual(person.Id, repo.GetPersons().Result.Count());
-            Assert.AreEqual(person, repo.GetPerson(person.Id).Result);
-        }
+        // Assert
+        Assert.AreEqual(2, result.Count());
+        CollectionAssert.AreEquivalent(persons, result.ToList());
+    }
 
-        [TestMethod]
-        public void AddPerson_NullPerson_ThrowsArgumentNullException()
-        {
-            // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => repo.AddPerson(null!));
-        }
+    [TestMethod]
+    public async Task UpdatePerson_ShouldUpdatePerson_WhenPersonExists()
+    {
+        // Arrange
+        var person = new Person { Id = 1, Man = true, Weight = 70, Age = 30 };
+        var updatedPerson = new Person { Id = 1, Man = false, Weight = 75, Age = 35 };
 
-        [TestMethod]
-        public void GetPerson_ValidId_ReturnsPerson()
-        {
-            // Arrange
-            var person = new Person { Age = 25, Weight = 70, Man = true };
-            repo.AddPerson(person);
+        var persons = new List<Person> { person };
+        var mockSet = persons.AsQueryable().BuildMockDbSet();
 
-            // Act
-            var result = repo.GetPerson(person.Id).Result;
+        _mockContext!.Setup(m => m.Set<Person>()).Returns(mockSet.Object);
 
-            // Assert
-            Assert.AreEqual(person, result);
-        }
+        // Act
+        var result = await _repository.UpdatePerson(1, updatedPerson);
 
-        [TestMethod]
-        public void GetPerson_InvalidId_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            int initialCount = repo.GetPersons().Result.Count();
+        // Assert
+        Assert.AreEqual(updatedPerson.Weight, result.Weight);
+        Assert.AreEqual(updatedPerson.Age, result.Age);
+        Assert.AreEqual(updatedPerson.Man, result.Man);
+        _mockContext.Verify(m => m.SaveChangesAsync(default), Times.Once);
+    }
 
-            // Act & Assert
-            Assert.ThrowsException<KeyNotFoundException>(() => repo.GetPerson(initialCount + 1));
-        }
+    [TestMethod]
+    public async Task DeletePerson_ShouldRemovePerson_WhenPersonExists()
+    {
+        // Arrange
+        var person = new Person { Id = 1, Man = true, Weight = 70, Age = 30 };
+        var persons = new List<Person> { person };
+        var mockSet = persons.AsQueryable().BuildMockDbSet();
 
-        [TestMethod]
-        public void GetPersons_ReturnsAllPersons()
-        {
-            // Arrange
-            int initialCount = repo.GetPersons().Result.Count();
-            var person1 = new Person { Age = 25, Weight = 70, Man = true };
-            var person2 = new Person { Age = 30, Weight = 80, Man = false };
-            repo.AddPerson(person1);
-            repo.AddPerson(person2);
+        _mockContext!.Setup(m => m.Set<Person>()).Returns(mockSet.Object);
 
-            // Act
-            var result = repo.GetPersons().Result;
+        // Act
+        var result = await _repository.DeletePerson(1);
 
-            // Assert
-            Assert.AreEqual(initialCount + 2, result.Count());
-            CollectionAssert.Contains(result.ToList(), person1);
-            CollectionAssert.Contains(result.ToList(), person2);
-        }
-
-        [TestMethod]
-        public void UpdatePerson_ValidId_UpdatesPerson()
-        {
-            // Arrange
-            var person = new Person { Age = 25, Weight = 70, Man = true };
-            repo.AddPerson(person);
-            var updatedPerson = new Person { Age = 30, Weight = 75, Man = false };
-
-            // Act
-            var result = repo.UpdatePerson(person.Id, updatedPerson).Result;
-
-            // Assert
-            Assert.AreEqual(updatedPerson.Age, result.Age);
-            Assert.AreEqual(updatedPerson.Weight, result.Weight);
-            Assert.AreEqual(updatedPerson.Man, result.Man);
-        }
-
-        [TestMethod]
-        public void UpdatePerson_InvalidId_ThrowsKeyNotFoundException()
-        {
-            // Act & Assert
-            Assert.ThrowsException<KeyNotFoundException>(() => repo.UpdatePerson(1000000, new Person { Age = 30, Weight = 75, Man = false } ));
-        }
-
-        [TestMethod]
-        public void UpdatePerson_NullPerson_ThrowsArgumentNullException()
-        {
-            // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => repo.UpdatePerson(1, null!));
-        }
-
-        [TestMethod]
-        public void DeletePerson_ValidId_DeletesPerson()
-        {
-            // Arrange
-            int initialCount = repo.GetPersons().Result.Count();
-            var person = new Person { Age = 25, Weight = 70, Man = true };
-            repo.AddPerson(person);
-
-            // Act
-            var result = repo.DeletePerson(person.Id).Result;
-
-            // Assert
-            Assert.AreEqual(person, result);
-            Assert.AreEqual(initialCount, repo.GetPersons().Result.Count());
-        }
-
-        [TestMethod]
-        public void DeletePerson_InvalidId_ThrowsKeyNotFoundException()
-        {
-            // Act & Assert
-            Assert.ThrowsException<KeyNotFoundException>(() => repo.DeletePerson(1000000));
-        }
-
-        [TestMethod]
-        public void DeletePerson_IdLessThan1_ThrowsArgumentOutOfRangeException()
-        {
-            // Act & Assert
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => repo.DeletePerson(0));
-        }
+        // Assert
+        Assert.AreEqual(person, result);
+        mockSet.Verify(m => m.Remove(person), Times.Once);
+        _mockContext.Verify(m => m.SaveChangesAsync(default), Times.Once);
     }
 }

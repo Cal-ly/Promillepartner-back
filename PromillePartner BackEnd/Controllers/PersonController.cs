@@ -45,10 +45,8 @@ public class PersonController(PersonRepository repo) : ControllerBase
     }
 
     // POST api/<PersonController>
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPost]
-    public ActionResult<Person> Post([FromBody] Person value)
+    public async Task<ActionResult<Person>> Post([FromBody] Person value)
     {
         if (value == null)
         {
@@ -56,7 +54,7 @@ public class PersonController(PersonRepository repo) : ControllerBase
         }
         try
         {
-            repo.AddPerson(value);
+            await repo.AddPerson(value);
             return CreatedAtAction(nameof(Get), new { id = value.Id }, value);
         }
         catch (Exception ex)

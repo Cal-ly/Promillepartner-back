@@ -1,10 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using PromillePartner_BackEnd.Data;
 using PromillePartner_BackEnd.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<VoresDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 // Add services to the container.
-builder.Services.AddSingleton<PersonRepository>();
-builder.Services.AddSingleton<PiReadingRepository>();
+builder.Services.AddScoped<PersonRepository>();
+builder.Services.AddScoped<PiReadingRepository>();
 
 builder.Services.AddControllers();
 
@@ -25,6 +30,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
+
 
 app.UseCors();
 app.UseSwagger();

@@ -1,28 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PromillePartner_BackEnd.Data;
 using PromillePartner_BackEnd.Models;
 using System;
 
 namespace PromillePartner_BackEnd.Repositories;
 
 /// <summary>
-/// This is the repository for our person class. It contains a list of all persons.
-/// And has the following methods: AddPerson, GetPerson, GetPersons(getall)
+/// This is the repository for our person class. It contains methods to add, get, update, and delete persons.
 /// </summary>
-public class PersonRepository
+public class PersonRepository(VoresDbContext context)
 {
-    private readonly List<Person> _persons;
-
-    public PersonRepository()
-    {
-        _persons = Data.MockData.MockPerson.GetMockPersons();
-    }
+    private readonly VoresDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     /// <summary>
-    /// This method adds a person to the list of persons in the repository
-    /// It runs validate from the person class before adding.
+    /// Adds a person to the repository.
     /// </summary>
-    /// <param name="person"></param>
-    /// <exception cref="ArgumentNullException"></exception>
+    /// <param name="person">The person to add.</param>
+    /// <returns>The added person.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the person is null.</exception>
     public async Task<Person> AddPerson(Person person)
     {
         if (person == null)
@@ -30,57 +25,39 @@ public class PersonRepository
             throw new ArgumentNullException(nameof(person), "Person cannot be null");
         }
         person.Validate();
-        //denne funktion er bedre end count() i tilfælde når vi sletter elementer fra lister
-        //person.Id = _persons.Any() ? _persons.Max(p => p.Id) + 1 : 1;
-        _persons.Add(person);
-        using (var context = new VoresDbContext())
-        {
-            context.Add(person);
-            await context.SaveChangesAsync();
-            return person;
-        }
+        await _context.AddAsync(person);
+        await _context.SaveChangesAsync();
+        return person;
     }
 
     /// <summary>
-    /// Get person by Id. If no person is found, an exception is thrown.
+    /// Gets a person by Id.
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    /// <exception cref="KeyNotFoundException"></exception>
-    public async Task<Person> GetPerson(int id)
+    /// <param name="id">The Id of the person to get.</param>
+    /// <returns>The person with the specified Id, or null if not found.</returns>
+    public async Task<Person?> GetPerson(int id)
     {
-        //den smider nu en exception der fortæller at den ikke kunne finde personen med det navn
-        using (var context = new VoresDbContext())
-        {
-            return await context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id);
-        }
-        //return _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
+        return await _context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id);
     }
 
     /// <summary>
-    /// Returns the list of all persons in the repository.
+    /// Gets all persons in the repository.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A list of all persons.</returns>
     public async Task<IEnumerable<Person>> GetPersons()
     {
-        //returnerer en kopi en liste over person, det enkelte person objekt kan stadig redigeres med den de kan nu ikke tilføje og slette fra liste
-        using (var context = new VoresDbContext())
-        {
-            return await context.Set<Person>().AsNoTracking().ToListAsync();
-        }
-        return new List<Person>(_persons);
+        return await _context.Set<Person>().AsNoTracking().ToListAsync();
     }
 
     /// <summary>
-    /// Updates a person with the given id. Id must be greater than 0.
-    /// Returns the updated person if successful.
-    /// Throws exception if id is less than 1 or person is null.
+    /// Updates a person with the given Id.
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="person"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    /// <exception cref="ArgumentNullException"></exception>
+    /// <param name="id">The Id of the person to update.</param>
+    /// <param name="person">The updated person data.</param>
+    /// <returns>The updated person.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the Id is less than 1.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the person is null.</exception>
+    /// <exception cref="KeyNotFoundException">Thrown if the person with the specified Id is not found.</exception>
     public async Task<Person> UpdatePerson(int id, Person person)
     {
         if (id < 1)
@@ -93,51 +70,35 @@ public class PersonRepository
         }
         person.Validate();
 
-        using (var context = new VoresDbContext())
-        {
-            Person foundPerson = await context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id);
-            foundPerson.Man = person.Man;
-            foundPerson.Weight = person.Weight;
-            foundPerson.Age = person.Age;
-            //creates new entry if it found no match
-            //context.Set<Person>().Update(person);
-            await context.SaveChangesAsync();
-            return foundPerson;
-        }
+        var foundPerson = await _context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id)
+            ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
 
-        //var foundPerson = _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
-
-        //foundPerson.Age = person.Age;
-        //foundPerson.Weight = person.Weight;
-        //foundPerson.Man = person.Man;
-
-        
+        foundPerson.Man = person.Man;
+        foundPerson.Weight = person.Weight;
+        foundPerson.Age = person.Age;
+        await _context.SaveChangesAsync();
+        return foundPerson;
     }
 
     /// <summary>
-    /// Deletes a person with the given id. Id must be greater than 0.
-    /// Returns the deleted person if successful.
-    /// Throws exception if person is not found.
+    /// Deletes a person with the given Id.
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    /// <exception cref="KeyNotFoundException"></exception>
+    /// <param name="id">The Id of the person to delete.</param>
+    /// <returns>The deleted person.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the Id is less than 1.</exception>
+    /// <exception cref="KeyNotFoundException">Thrown if the person with the specified Id is not found.</exception>
     public async Task<Person> DeletePerson(int id)
     {
-        
         if (id < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(id), "Id cannot be less than 1");
         }
-        using (var context = new VoresDbContext())
-        {
-            Person foundPerson = await context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id);
-            context.Set<Person>().Remove(foundPerson);
-            await context.SaveChangesAsync();
-            return null;
-        }
-        //var personToBeDeleted = _persons.FirstOrDefault(p => p.Id == id) ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
-        //_persons.Remove(personToBeDeleted);
+
+        var foundPerson = await _context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id)
+            ?? throw new KeyNotFoundException($"Person with Id {id} not found.");
+
+        _context.Set<Person>().Remove(foundPerson);
+        await _context.SaveChangesAsync();
+        return foundPerson;
     }
 }

@@ -22,12 +22,12 @@ public static class MockPerson
         ];
     }
 
-    public static void AddMockPersonsToRepository(PersonRepository repository)
+    public static async Task AddMockPersonsToRepository(PersonRepository repository)
     {
         var mockPersons = GetMockPersons();
         foreach (var person in mockPersons)
         {
-            repository.AddPerson(person);
+            await repository.AddPerson(person);
         }
     }
 }
