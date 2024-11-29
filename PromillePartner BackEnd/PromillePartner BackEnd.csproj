@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>PromillePartner_BackEnd</RootNamespace>
+    <UserSecretsId>c3358043-bd34-481e-a2c8-c3c64126cc63</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -7,8 +7,18 @@ namespace PromillePartner_BackEnd
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            //connect to database on local computer
-            options.UseSqlServer(@"Data Source=mssql4.unoeuro.com;Initial Catalog=tensormind_dk_db_pp; User Id=tensormind_dk; Password=hFkgbaAHeEmRxyGzdD64; TrustServerCertificate=true");
+            // Build configuration
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddUserSecrets<VoresDbContext>()
+                .Build();
+
+            // Get connection string from configuration
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            // Connect to database
+            options.UseSqlServer(connectionString);
         }
 
         //case sensitiv i koden, den smider ikke hvis den ikke kan finde tabellen
