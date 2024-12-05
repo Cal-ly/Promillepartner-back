@@ -106,6 +106,7 @@ namespace PromillePartner_BackEnd.Controllers
 
 
         // what needs to be done:
+        // - Update the database to contain a table for PromillePartnerPi
         // - repo test () 
         // - controller/integration test (postman)
 

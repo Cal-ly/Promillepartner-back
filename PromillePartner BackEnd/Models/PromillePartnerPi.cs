@@ -11,8 +11,9 @@
         public string Ip { get; set; }
 
 
-        public PromillePartnerPi(string identifier, string ip)
+        public PromillePartnerPi(string identifier, string ip, string apiKey)
         {
+            ApiKey = apiKey;
             Identifier = identifier;
             Ip = ip;
         }

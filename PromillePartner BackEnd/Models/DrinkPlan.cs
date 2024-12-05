@@ -6,9 +6,5 @@ namespace PromillePartner_BackEnd.Models
     public class DrinkPlan
     {
         public List<Drink> Drinks { get; set; }
-
-        public DrinkPlan()
-        {
-        }
     }
 }

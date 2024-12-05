@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using PromillePartner_BackEnd.Data.MockData;
 
 
 namespace PromillePartner_BackEnd.Repositories
@@ -18,6 +19,8 @@ namespace PromillePartner_BackEnd.Repositories
     {
         private readonly VoresDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
+        // private List<PromillePartnerPi> _pies = MockPromillePartnerPi.GetMockPies(); // for mock data
+
         private static int Port = 13000;
 
         /// <summary>
@@ -26,7 +29,9 @@ namespace PromillePartner_BackEnd.Repositories
         /// <returns>All pies</returns>
         public async Task<IEnumerable<PromillePartnerPi>> GetAsync()
         {
+            // Database
             IEnumerable<PromillePartnerPi> pies = await _context.Set<PromillePartnerPi>().AsNoTracking().ToListAsync();
+
 
             return pies;
         }
