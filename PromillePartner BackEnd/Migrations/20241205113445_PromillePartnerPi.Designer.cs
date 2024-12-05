@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PromillePartner_BackEnd.Data;
 
@@ -10,9 +11,11 @@ using PromillePartner_BackEnd.Data;
 namespace PromillePartner_BackEnd.Migrations
 {
     [DbContext(typeof(VoresDbContext))]
-    partial class VoresDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241205113445_PromillePartnerPi")]
+    partial class PromillePartnerPi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

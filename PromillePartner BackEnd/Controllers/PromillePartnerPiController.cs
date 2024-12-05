@@ -23,6 +23,43 @@ namespace PromillePartner_BackEnd.Controllers
             _repo = repo;
         }
 
+        /// <summary>
+        /// Test method to have an overview of pies
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet()]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Get()
+        {
+            var pies = await _repo.GetAsync();
+
+            if(pies == null)
+            {
+                return NotFound("There were not pies!");
+            }
+
+            return Ok(pies);
+        }
+        [HttpPost("manual_add")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Add([FromBody] PromillePartnerPi pi)
+        {
+            if(pi == null)
+            {
+                return BadRequest("the pi was null");
+            }
+            var result = await _repo.AddAsync(pi);
+
+            if(result == null)
+            {
+                return BadRequest("Unable to add pie");
+            }
+
+            return Ok(result);
+        }
+
 
         /// <summary>
         /// This Method is only supposed to be called by Rpies, and is called regularly to update the ip of the Rpi, to make
@@ -37,30 +74,36 @@ namespace PromillePartner_BackEnd.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Register([FromBody] string identifier, [FromHeader(Name = "X-Api-Key")] string apiKey)
+        public async Task<IActionResult> Register([FromBody] UpdateIpIdentifier identifier, [FromHeader(Name = "X-Api-Key")] string apiKey)
         {
-            if (string.IsNullOrWhiteSpace(identifier) || string.IsNullOrWhiteSpace(apiKey))
+            if (string.IsNullOrWhiteSpace(identifier.Identifier) || string.IsNullOrWhiteSpace(apiKey))
             {
                 return BadRequest("Identifier and API key are required.");
             }
 
             // Verify the API key
-            var isValid = await _repo.IsValidApiKey(identifier, apiKey);
+            var isValid = await _repo.IsValidApiKey(identifier.Identifier, apiKey);
             if (!isValid)
             {
                 return Unauthorized("Invalid API key.");
             }
 
             // Update IP logic
-            var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var success = await _repo.UpdateIp(identifier, clientIp);
+            var clientIp = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
+
+            if (!System.Net.IPAddress.TryParse(clientIp, out _))
+            {
+                return BadRequest("Could not find an Ip");
+            }
+
+            var success = await _repo.UpdateIp(identifier.Identifier, clientIp);
 
             if (!success)
             {
-                return NotFound($"No Raspberry Pi found with the identifier '{identifier}'.");
+                return NotFound($"No Raspberry Pi found with the identifier '{identifier.Identifier}'.");
             }
 
-            return Ok($"IP address {clientIp} is updated for identifier '{identifier}'.");
+            return Ok($"IP address {clientIp} is updated for identifier '{identifier.Identifier}'.");
         }
 
         /// <summary>
@@ -106,7 +149,6 @@ namespace PromillePartner_BackEnd.Controllers
 
 
         // what needs to be done:
-        // - Update the database to contain a table for PromillePartnerPi
         // - repo test () 
         // - controller/integration test (postman)
 

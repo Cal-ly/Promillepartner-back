@@ -1,11 +1,13 @@
-﻿namespace PromillePartner_BackEnd.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PromillePartner_BackEnd.Models
 {
     /// <summary>
     /// A unique pi, represented by a constant identifier used to get the current ip of a pie to connect to it.
     /// </summary>
     public class PromillePartnerPi
     {
-
+        [Key]
         public string Identifier { get; set; }
         public string ApiKey { get; set; }
         public string Ip { get; set; }
