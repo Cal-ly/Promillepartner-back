@@ -1,6 +1,11 @@
 ﻿using PromillePartner_BackEnd.Data;
 using PromillePartner_BackEnd.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Net.Sockets;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 
 namespace PromillePartner_BackEnd.Repositories
@@ -12,6 +17,8 @@ namespace PromillePartner_BackEnd.Repositories
     public class PromillePartnerPiRepository(VoresDbContext context)
     {
         private readonly VoresDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
+
+        private static int Port = 13000;
 
         /// <summary>
         /// Used to get all PromillePartnerPies From the Database
@@ -152,6 +159,68 @@ namespace PromillePartner_BackEnd.Repositories
             return pi.ApiKey == apiKey; 
         }
 
+        public async Task<string?> SendToPie(DrinkPlan drinkPlan, PromillePartnerPi pi)
+        {
+            if (drinkPlan == null || drinkPlan.Drinks == null)
+            {
+                throw new ArgumentNullException("DrinkPlan or Drinks list was null");
+            }
+            if (pi == null)
+            {
+                throw new ArgumentNullException("Pi was null");
+            }
+            if (string.IsNullOrWhiteSpace(pi.Ip))
+            {
+                throw new ArgumentException("Pi does not have a valid IP address");
+            }
+            if (Port <= 0 || Port > 65535)
+            {
+                throw new ArgumentException("Pi does not have a valid port number");
+            }
 
+            string? response = null;
+
+            // Serialize the DrinkPlan to JSON
+            string jsonData = JsonSerializer.Serialize(drinkPlan);
+
+            // Define the endpoint for the Raspberry Pi
+            string raspberryPiIp = pi.Ip;
+            int raspberryPiPort = Port;
+
+            try
+            {
+                // Create a TcpClient
+                using (TcpClient tcpClient = new TcpClient())
+                {
+                    // Connect to the Raspberry Pi
+                    await tcpClient.ConnectAsync(raspberryPiIp, raspberryPiPort);
+
+                    // Get the network stream
+                    using (NetworkStream networkStream = tcpClient.GetStream())
+                    {
+                        // Convert the JSON data to bytes
+                        byte[] dataToSend = Encoding.UTF8.GetBytes(jsonData);
+
+                        // Send the data over the network
+                        await networkStream.WriteAsync(dataToSend, 0, dataToSend.Length);
+
+                        // Optionally, you can wait for a response from the server (if expected)
+                        byte[] buffer = new byte[1024];
+                        int bytesRead = await networkStream.ReadAsync(buffer, 0, buffer.Length);
+
+                        // Convert the response to a string (if applicable)
+                        response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        Console.WriteLine($"Response from Raspberry Pi: {response}");
+                        return response;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions, e.g., connection failures, serialization errors
+                Console.WriteLine($"An error occurred while sending data to the Raspberry Pi: {ex.Message}");
+                return response;
+            }
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace PromillePartner_BackEnd.Models
+﻿using System.Text.Json;
+
+namespace PromillePartner_BackEnd.Models
 {
     public class Drink
     {
@@ -24,5 +26,6 @@
         public Drink()
         {
         }
+
     }
 }
