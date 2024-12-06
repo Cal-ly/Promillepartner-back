@@ -74,7 +74,7 @@ namespace PromillePartner_BackEnd.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Register([FromBody] UpdateIpIdentifier identifier, [FromHeader(Name = "X-Api-Key")] string apiKey)
+        public async Task<IActionResult> Register([FromBody] UpdateIpIdentifier identifier, [FromHeader(Name = "X-Api-Key")] string apiKey, [FromHeader(Name = "X-Pi-Ip")] string Ip)
         {
             if (string.IsNullOrWhiteSpace(identifier.Identifier) || string.IsNullOrWhiteSpace(apiKey))
             {
@@ -89,7 +89,7 @@ namespace PromillePartner_BackEnd.Controllers
             }
 
             // Update IP logic
-            var clientIp = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
+            var clientIp = Ip;
 
             if (!System.Net.IPAddress.TryParse(clientIp, out _))
             {
