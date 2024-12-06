@@ -164,5 +164,32 @@ namespace PromillePartner_BackEnd.Controllers
         // - When a Drukplan is received it should not be saved in the database
 
 
+
+        [HttpPost("test_ip_is_correct")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> TestIp([FromBody] UpdateIpIdentifier identifier, [FromHeader(Name = "X-Api-Key")] string apiKey)
+        {
+            
+            if (string.IsNullOrWhiteSpace(identifier.Identifier) || string.IsNullOrWhiteSpace(apiKey))
+            {
+                return BadRequest("Identifier and API key are required.");
+            }
+
+            // Verify the API key
+            var isValid = await _repo.IsValidApiKey(identifier.Identifier, apiKey);
+            if (!isValid)
+            {
+                return Unauthorized("Invalid API key.");
+            }
+
+            // Update IP logic
+            var clientIp = HttpContext.Connection.RemoteIpAddress?.MapToIPv4();
+
+
+            return Ok($"IP address {clientIp} is updated for identifier '{identifier.Identifier}'.");
+        }
+
     }
 }
