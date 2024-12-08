@@ -164,9 +164,9 @@ namespace PromillePartner_BackEnd.Repositories
             return pi.ApiKey == apiKey; 
         }
 
-        public async Task<string?> SendToPie(DrinkPlan drinkPlan, PromillePartnerPi pi)
+        public async Task<string?> SendToPie(UpdateDrinkPlanData drinkPlan, PromillePartnerPi pi)
         {
-            if (drinkPlan == null || drinkPlan.Drinks == null)
+            if (drinkPlan == null)
             {
                 throw new ArgumentNullException("DrinkPlan or Drinks list was null");
             }
@@ -177,10 +177,6 @@ namespace PromillePartner_BackEnd.Repositories
             if (string.IsNullOrWhiteSpace(pi.Ip))
             {
                 throw new ArgumentException("Pi does not have a valid IP address");
-            }
-            if (Port <= 0 || Port > 65535)
-            {
-                throw new ArgumentException("Pi does not have a valid port number");
             }
 
             string? response = null;

@@ -122,7 +122,7 @@ namespace PromillePartner_BackEnd.Controllers
             {
                 return BadRequest("Identifier is required");
             }
-            if (data.DrinkPlan.Drinks == null || data.DrinkPlan == null)
+            if (data.DrinkPlan == null)
             {
                 return BadRequest("DrinkPlan can't be null");
             }
