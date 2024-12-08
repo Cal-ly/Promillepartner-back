@@ -3,7 +3,7 @@
     public class UpdateDrinkPlanRequest
     {
         public string Identifier { get; set; } = string.Empty;
-        public UpdateDrinkPlanData? DrinkPlan { get; set; }
+        public List<UpdateDrinkPlanData>? DrinkPlan { get; set; }
     }
 
 }

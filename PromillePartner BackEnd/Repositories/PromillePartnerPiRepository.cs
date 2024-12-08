@@ -164,7 +164,7 @@ namespace PromillePartner_BackEnd.Repositories
             return pi.ApiKey == apiKey; 
         }
 
-        public async Task<string?> SendToPie(UpdateDrinkPlanData drinkPlan, PromillePartnerPi pi)
+        public async Task<string?> SendToPie(List<UpdateDrinkPlanData> drinkPlan, PromillePartnerPi pi)
         {
             if (drinkPlan == null)
             {

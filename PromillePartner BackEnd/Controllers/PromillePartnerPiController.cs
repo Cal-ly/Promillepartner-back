@@ -118,12 +118,19 @@ namespace PromillePartner_BackEnd.Controllers
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
         public async Task<IActionResult> UpdateDrinkPlan([FromBody] UpdateDrinkPlanRequest data)
         {
+            if(data == null)
+            {
+                Console.WriteLine("data is null");
+                return BadRequest("Data is required");
+            }
             if (string.IsNullOrWhiteSpace(data.Identifier))
             {
+                Console.WriteLine("Identifier is null");
                 return BadRequest("Identifier is required");
             }
             if (data.DrinkPlan == null)
             {
+                Console.WriteLine("drinkplan is null");
                 return BadRequest("DrinkPlan can't be null");
             }
 
@@ -131,6 +138,7 @@ namespace PromillePartner_BackEnd.Controllers
 
             if(pi == null)
             {
+                Console.WriteLine("Could not find a pi with the given identifier");
                 return NotFound($"Could not find a pi with the given identifier: {data.Identifier}");
             }
 
