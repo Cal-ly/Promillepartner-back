@@ -147,9 +147,9 @@ namespace PromillePartner_BackEnd.Controllers
             string? connected = await _repo.SendToPie(drinkPlan: data.DrinkPlan, pi: pi);
 
 
-            if (string.IsNullOrWhiteSpace(connected))
+            if (connected == null)
             {
-                return StatusCode(502, "Was unable to connect to the PromillePartner");
+                return StatusCode(502, "Was unable to connect to the PromillePartner"); 
             }
 
             return Ok(connected); // returns the response from raspberry pi

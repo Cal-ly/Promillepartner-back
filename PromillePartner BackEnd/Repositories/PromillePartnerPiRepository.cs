@@ -21,8 +21,6 @@ namespace PromillePartner_BackEnd.Repositories
 
         // private List<PromillePartnerPi> _pies = MockPromillePartnerPi.GetMockPies(); // for mock data
 
-        private static int Port = 13000;
-
         /// <summary>
         /// Used to get all PromillePartnerPies From the Database
         /// </summary>
@@ -168,60 +166,88 @@ namespace PromillePartner_BackEnd.Repositories
         {
             if (drinkPlan == null)
             {
-                throw new ArgumentNullException("DrinkPlan or Drinks list was null");
+                throw new ArgumentNullException(nameof(drinkPlan), "DrinkPlan or Drinks list was null");
             }
             if (pi == null)
             {
-                throw new ArgumentNullException("Pi was null");
+                throw new ArgumentNullException(nameof(pi), "Pi was null");
             }
             if (string.IsNullOrWhiteSpace(pi.Ip))
             {
-                throw new ArgumentException("Pi does not have a valid IP address");
+                throw new ArgumentException("Pi does not have a valid IP address", nameof(pi));
             }
 
             string? response = null;
 
-            // Serialize the DrinkPlan to JSON
-            string jsonData = JsonSerializer.Serialize(drinkPlan);
+            // Extract the TimeDifference values and create a List<double>
+            List<double> data = new List<double>();
+            foreach (var val in drinkPlan)
+            {
+                data.Add(val.TimeDifference);
+            }
+
+            // Create an object with a "data" property
+            var dataObject = new { data };
+
+            // Serialize the object to JSON (this will include the "data" key)
+            string jsonData = JsonSerializer.Serialize(dataObject);
 
             // Define the endpoint for the Raspberry Pi
             string raspberryPiIp = pi.Ip;
-            int raspberryPiPort = Port;
+            int raspberryPiPort = 13000;
 
             try
             {
-                // Create a TcpClient
                 using (TcpClient tcpClient = new TcpClient())
                 {
-                    // Connect to the Raspberry Pi
-                    await tcpClient.ConnectAsync(raspberryPiIp, raspberryPiPort);
+                    // Set the connection timeout (e.g., 5 seconds)
+                    var connectTask = tcpClient.ConnectAsync(raspberryPiIp, raspberryPiPort);
+                    if (await Task.WhenAny(connectTask, Task.Delay(5000)) != connectTask)
+                    {
+                        throw new TimeoutException("Connection to Raspberry Pi timed out.");
+                    }
 
-                    // Get the network stream
                     using (NetworkStream networkStream = tcpClient.GetStream())
                     {
-                        // Convert the JSON data to bytes
+                        // Set a read timeout (e.g., 5 seconds)
+                        tcpClient.ReceiveTimeout = 5000;
+
+                        // Convert the JSON data to a byte array
                         byte[] dataToSend = Encoding.UTF8.GetBytes(jsonData);
 
                         // Send the data over the network
                         await networkStream.WriteAsync(dataToSend, 0, dataToSend.Length);
 
-                        // Optionally, you can wait for a response from the server (if expected)
+                        // Optionally, you can wait for a response from the server
                         byte[] buffer = new byte[1024];
                         int bytesRead = await networkStream.ReadAsync(buffer, 0, buffer.Length);
 
-                        // Convert the response to a string (if applicable)
+                        // Handle no response scenario
+                        if (bytesRead == 0)
+                        {
+                            Console.WriteLine("No response from Raspberry Pi.");
+                            return null;
+                        }
+
+                        // Convert the response to a string
                         response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                         Console.WriteLine($"Response from Raspberry Pi: {response}");
                         return response;
                     }
                 }
             }
+            catch (TimeoutException ex)
+            {
+                Console.WriteLine($"Timeout error: {ex.Message}");
+            }
             catch (Exception ex)
             {
-                // Handle exceptions, e.g., connection failures, serialization errors
+                // Log the detailed error
                 Console.WriteLine($"An error occurred while sending data to the Raspberry Pi: {ex.Message}");
-                return response;
             }
+
+            return null;
         }
+
     }
 }
