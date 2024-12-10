@@ -62,7 +62,7 @@ namespace PromillePartner_BackEnd.Controllers
                 return NotFound("Drink plan not found");
             }
 
-            return Ok(drinkPlan);
+            return Ok(drinkPlan.DrinkPlanen);
         }
 
         /// <summary>

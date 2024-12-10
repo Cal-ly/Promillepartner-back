@@ -31,7 +31,7 @@ public class DrinkPlanRepository(VoresDbContext context)
 
     public async Task<List<DrinkPlan>> Get()
     {
-        return await _context.Set<DrinkPlan?>().AsNoTracking().ToListAsync();
+        return await _context.Set<DrinkPlan?>().Include(d => d.DrinkPlanen).AsNoTracking().ToListAsync();
     }
 
 
