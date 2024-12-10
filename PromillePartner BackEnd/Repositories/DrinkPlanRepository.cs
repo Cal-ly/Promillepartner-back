@@ -29,6 +29,12 @@ public class DrinkPlanRepository(VoresDbContext context)
         return drinkPlan;
     }
 
+    public async Task<List<DrinkPlan>> Get()
+    {
+        return await _context.Set<DrinkPlan?>().AsNoTracking().ToListAsync();
+    }
+
+
     /// <summary>
     /// Gets a person by Id.
     /// </summary>
@@ -36,7 +42,11 @@ public class DrinkPlanRepository(VoresDbContext context)
     /// <returns>The person with the specified Id, or null if not found.</returns>
     public async Task<DrinkPlan?> GetDrinkPlan(string identifier)
     {
-        return await _context.Set<DrinkPlan>().FirstAsync(p => p.Identifier == identifier);
+        return await _context.Set<DrinkPlan>()
+                                    .Include(d => d.DrinkPlanen)
+                                    .Where(d => d.Identifier == identifier)
+                                    .FirstOrDefaultAsync();
+
     }
 
 
@@ -67,5 +77,12 @@ public class DrinkPlanRepository(VoresDbContext context)
         return foundDrinkPlan;
     }
 
-    
+    public async Task<DrinkPlan?> GetDrinkPlanByIdentifier(string identifier)
+    {
+        return await _context.Set<DrinkPlan>()
+            .FirstOrDefaultAsync(dp => dp.Identifier == identifier);
+    }
+
+
+
 }

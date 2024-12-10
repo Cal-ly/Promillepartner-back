@@ -11,6 +11,7 @@ builder.Services.AddDbContext<VoresDbContext>(options =>
 builder.Services.AddScoped<PersonRepository>();
 builder.Services.AddScoped<PiReadingRepository>();
 builder.Services.AddScoped<PromillePartnerPiRepository>();
+builder.Services.AddScoped<DrinkPlanRepository>();
 
 builder.Services.AddControllers();
 
