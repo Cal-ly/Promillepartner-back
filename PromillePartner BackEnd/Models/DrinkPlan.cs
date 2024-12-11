@@ -6,6 +6,7 @@ namespace PromillePartner_BackEnd.Models
     {
         [Key]
         public string Identifier { get; set; } = string.Empty;
+        public long? TimeStamp { get; set; }
         public List<UpdateDrinkPlanData>? DrinkPlanen { get; set; }
 
         public override bool Equals(object? obj)

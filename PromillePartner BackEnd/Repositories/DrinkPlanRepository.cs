@@ -99,6 +99,7 @@ public class DrinkPlanRepository(VoresDbContext context)
         {
             foundDrinkPlan.DrinkPlanen.Add(drink);
         }
+        foundDrinkPlan.TimeStamp = drikkeplan.TimeStamp;
         await _context.SaveChangesAsync();
         return drikkeplan;
     }

@@ -97,7 +97,10 @@ namespace PromillePartner_BackEnd.Controllers
             var existingDrinkPlan = await _drinkPlanRepository.GetDrinkPlanByIdentifier(drinkPlan.Identifier);
             if (existingDrinkPlan != null)
             {
-                return Conflict("A drink plan with this identifier already exists.");
+                drinkPlan.TimeStamp = existingDrinkPlan.TimeStamp;
+                await _drinkPlanRepository.UpdateDrinkPlan(drinkPlan);
+                return Ok("A drink plan with this identifier already exists. Drink plan updated.");
+                //return Conflict("A drink plan with this identifier already exists.");
             }
 
             // Add drink plan
