@@ -73,6 +73,7 @@ namespace PromillePartner_BackEnd.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult<DrinkPlan>> CreateDrinkPlan([FromBody] DrinkPlan drinkPlan)
         {
             // Input validation
