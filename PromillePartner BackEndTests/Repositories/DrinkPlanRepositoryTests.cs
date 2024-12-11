@@ -89,4 +89,28 @@ public class DrinkPlanRepositoryTests
         //Assert.AreEqual(1, result.Count());
         Assert.AreEqual(drinkPlan, result);
     }
+
+    [TestMethod]
+    public async Task UpdateDrukplanTest()
+    {
+        // Arrange
+
+        DrinkPlan addedDrinkPlan = new() { Identifier = "bob", DrinkPlanen = new() { new() { ID = 1, DrinkName = "Mandor", TimeDifference = 123.123 }, new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 }, new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 } } };
+        DrinkPlan newValuesDrinkPlan = new() { Identifier = "bob", DrinkPlanen = new() { new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 }, new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 }, new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 } } };
+        DrinkPlan expectedDrinkPlan = new() { Identifier = "bob", DrinkPlanen = new() { new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 }, new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 }, new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 } } };
+
+        var persons = new List<DrinkPlan> { addedDrinkPlan };
+        var mockSet = persons.AsQueryable().BuildMockDbSet();
+        _mockContext!.Setup(m => m.Set<DrinkPlan>()).Returns(mockSet.Object);
+
+        // Act
+        //await _repository.AddDrinkPlan(addedDrinkPlan);
+        var result = await _repository.UpdateDrinkPlan(newValuesDrinkPlan);
+
+
+        // Assert
+        //Assert.AreEqual(1, result.Count());
+        Assert.AreEqual(expectedDrinkPlan, result);
+        Assert.AreEqual(expectedDrinkPlan.DrinkPlanen.ElementAt(0), result.DrinkPlanen.ElementAt(0));
+    }
 }

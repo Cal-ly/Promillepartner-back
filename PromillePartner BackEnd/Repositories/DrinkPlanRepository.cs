@@ -83,6 +83,24 @@ public class DrinkPlanRepository(VoresDbContext context)
             .FirstOrDefaultAsync(dp => dp.Identifier == identifier);
     }
 
-
+    public async Task<DrinkPlan?> UpdateDrinkPlan(DrinkPlan drikkeplan)
+    {
+        if(drikkeplan == null)
+        {
+            throw new ArgumentNullException();
+        }
+        var foundDrinkPlan = await _context.Set<DrinkPlan>().Include(nameof(drikkeplan.DrinkPlanen)).FirstOrDefaultAsync(p => p.Identifier == drikkeplan.Identifier);
+        if (foundDrinkPlan == null)
+        {
+            throw new Exception();
+        }
+        foundDrinkPlan.DrinkPlanen = new();
+        foreach (var drink in drikkeplan.DrinkPlanen)
+        {
+            foundDrinkPlan.DrinkPlanen.Add(drink);
+        }
+        await _context.SaveChangesAsync();
+        return drikkeplan;
+    }
 
 }

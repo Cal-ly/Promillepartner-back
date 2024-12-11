@@ -106,6 +106,41 @@ namespace PromillePartner_BackEnd.Controllers
             // Return created drink plan with 201 Created status
             return CreatedAtAction(nameof(GetDrinkPlan), new { identifier = createdDrinkPlan.Identifier }, createdDrinkPlan);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="drinkPlan"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<DrinkPlan>> UpdateDrinkPlan([FromBody] DrinkPlan drinkPlan)
+        {
+            // Input validation
+            if (drinkPlan == null)
+            {
+                return BadRequest("Drink plan cannot be null");
+            }
+
+            // Validate identifier
+            if (string.IsNullOrWhiteSpace(drinkPlan.Identifier))
+            {
+                return BadRequest("Drink plan must have a valid identifier");
+            }
+
+            if (drinkPlan.DrinkPlanen == null)
+            {
+                return BadRequest("Drukplan is null");
+            }
+
+            // Add drink plan
+            var createdDrinkPlan = await _drinkPlanRepository.UpdateDrinkPlan(drinkPlan);
+
+            // Return created drink plan with 201 Created status
+            return Ok(createdDrinkPlan);
+        }
     }
 
 }

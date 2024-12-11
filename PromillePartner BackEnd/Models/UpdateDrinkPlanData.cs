@@ -10,5 +10,12 @@ namespace PromillePartner_BackEnd.Models
 
         public string DrinkName { get; set; }
 
+        public override bool Equals(object? obj)
+        {
+            return obj is UpdateDrinkPlanData data &&
+                   ID == data.ID &&
+                   TimeDifference == data.TimeDifference &&
+                   DrinkName == data.DrinkName;
+        }
     }
 }
