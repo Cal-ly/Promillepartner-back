@@ -90,6 +90,10 @@ public class PersonController(PersonRepository repo) : ControllerBase
         {
             return NotFound(ex.Message);
         }
+        catch (Exception ex)
+        {
+            return BadRequest($"Validation failed: {ex.Message}");
+        }
     }
 
     // DELETE api/<PersonController>/5
