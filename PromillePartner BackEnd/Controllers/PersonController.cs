@@ -45,6 +45,9 @@ public class PersonController(PersonRepository repo) : ControllerBase
     }
 
     // POST api/<PersonController>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpPost]
     public async Task<ActionResult<Person>> Post([FromBody] Person value)
     {
