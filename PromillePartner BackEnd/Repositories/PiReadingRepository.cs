@@ -1,4 +1,5 @@
-﻿using PromillePartner_BackEnd.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PromillePartner_BackEnd.Data;
 using PromillePartner_BackEnd.Models;
 
 namespace PromillePartner_BackEnd.Repositories
@@ -30,9 +31,9 @@ namespace PromillePartner_BackEnd.Repositories
             return _PiReadingList.FirstOrDefault(p => p.Id == id) ?? throw new InvalidOperationException($"PiReading with id {id} not found.");
         }
 
-        public IEnumerable<PiReading> GetPiReadings()
+        public async Task<IEnumerable<PiReading>> GetPiReadings()
         {
-            return _PiReadingList;
+            return await _context.Set<PiReading>().AsNoTracking().ToListAsync(); ;
         }
 
     }

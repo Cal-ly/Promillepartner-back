@@ -20,9 +20,9 @@ namespace PromillePartner_BackEnd.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet]
-        public ActionResult<IEnumerable<PiReading>> GetAll()
+        public async Task<ActionResult<IEnumerable<PiReading>>> GetAll()
         {
-            return Ok(_repo.GetPiReadings());
+            return Ok(await _repo.GetPiReadings());
         }
 
         // GET api/<PiReadingController>/5
