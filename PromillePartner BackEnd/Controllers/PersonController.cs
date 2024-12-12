@@ -84,7 +84,7 @@ public class PersonController(PersonRepository repo) : ControllerBase
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            return BadRequest(ex.Message);
+            return NotFound(ex.Message);
         }
         catch (KeyNotFoundException ex)
         {
@@ -110,7 +110,7 @@ public class PersonController(PersonRepository repo) : ControllerBase
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            return BadRequest(ex.Message);
+            return NotFound(ex.Message);
         }
         catch (KeyNotFoundException ex)
         {
