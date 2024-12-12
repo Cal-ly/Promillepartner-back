@@ -1,20 +1,27 @@
-﻿using PromillePartner_BackEnd.Models;
+﻿using PromillePartner_BackEnd.Data;
+using PromillePartner_BackEnd.Models;
 
 namespace PromillePartner_BackEnd.Repositories
 {
-    public class PiReadingRepository
+    public class PiReadingRepository(VoresDbContext context)
     {
         private List<PiReading> _PiReadingList = new List<PiReading>();
 
-        public PiReading AddPiReading(PiReading piReading)
+        private readonly VoresDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
+
+        public async Task<PiReading> AddPiReading(PiReading piReading)
         {
             if(piReading == null)
             {
                 throw new ArgumentNullException($"{piReading} can not be null");
             }
             piReading.Validate();
-            piReading.Id = _PiReadingList.Count() + 1;
-            _PiReadingList.Add(piReading);
+
+            //piReading.Id = _PiReadingList.Count() + 1; // database generates id now
+            //_PiReadingList.Add(piReading);
+
+            await _context.AddAsync(piReading);
+            await _context.SaveChangesAsync();
             return piReading;
         }
 
