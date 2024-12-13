@@ -4,14 +4,20 @@ using PromillePartner_BackEnd.Models;
 
 namespace PromillePartner_BackEnd.Controllers
 {
+    /// <summary>
+    /// Drink controller class
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class DrinkController : Controller
     {
-        // GET: DrinkController
+        /// <summary>
+        /// Controller til at returnere en liste med Drinks som brugeren kan vælge imellem
+        /// Kaldes med HttpGet
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<IEnumerable<Drink>> Index()
         {
             var drinklist = new List<Drink>();

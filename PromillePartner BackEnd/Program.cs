@@ -10,7 +10,6 @@ builder.Services.AddDbContext<VoresDbContext>(options =>
 // Add services to the container.
 builder.Services.AddScoped<PersonRepository>();
 builder.Services.AddScoped<PiReadingRepository>();
-builder.Services.AddScoped<PromillePartnerPiRepository>();
 builder.Services.AddScoped<DrinkPlanRepository>();
 
 builder.Services.AddControllers();
