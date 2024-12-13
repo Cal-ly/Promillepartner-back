@@ -89,10 +89,6 @@ public class PersonRepository(VoresDbContext context)
     /// <exception cref="KeyNotFoundException">Thrown if the person with the specified Id is not found.</exception>
     public async Task<Person> DeletePerson(int id)
     {
-        if (id < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(id), "Id cannot be less than 1");
-        }
 
         var foundPerson = await _context.Set<Person>().FirstOrDefaultAsync(p => p.Id == id)
             ?? throw new KeyNotFoundException($"Person with Id {id} not found.");

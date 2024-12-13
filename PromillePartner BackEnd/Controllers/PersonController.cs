@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using PromillePartner_BackEnd.Repositories;
 using PromillePartner_BackEnd.Models;
+using PromillePartner_BackEnd.Repositories;
 
 namespace PromillePartner_BackEnd.Controllers;
 
@@ -101,8 +101,13 @@ public class PersonController(PersonRepository repo) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
     public ActionResult<Person> Delete(int id)
     {
+        if (id < 1)
+        {
+            return BadRequest("Id must be greater than 0.");
+        }
         try
         {
             Person deletedPerson = repo.DeletePerson(id).Result;
@@ -110,11 +115,15 @@ public class PersonController(PersonRepository repo) : ControllerBase
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            return NotFound(ex.Message);
+            return BadRequest(ex.Message);
         }
         catch (KeyNotFoundException ex)
         {
             return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 }
