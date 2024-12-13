@@ -6,6 +6,9 @@ using PromillePartner_BackEnd.Repositories;
 
 namespace PromillePartner_BackEnd.Controllers
 {
+    /// <summary>
+    /// Drinkplan controller
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class DrinkPlanController : ControllerBase

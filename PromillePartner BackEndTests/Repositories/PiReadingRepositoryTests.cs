@@ -1,5 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PromillePartner_BackEnd.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PromillePartner_BackEnd.Models;
 using PromillePartner_BackEnd.Repositories;
 using System;
@@ -13,13 +13,16 @@ namespace PromillePartner_BackEnd.Repositories.Tests
     [TestClass()]
     public class PiReadingRepositoryTests
     {
-        PiReadingRepository _repo;
+        PiReadingRepository _repo = new();
         [TestInitialize()]
         public void TestReset(VoresDbContext context)
         {
-            _repo = new(context);
+            _repo = new();
            
         }
+
+     
+
         [TestMethod()]
         public void AddAndGetPiReadingTest()
         {
