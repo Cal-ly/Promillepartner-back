@@ -13,10 +13,13 @@ namespace PromillePartner_BackEnd.Controllers;
 [ApiController]
 public class PersonController(PersonRepository repo) : ControllerBase
 {
-    // GET: api/<PersonController>
+    /// <summary>
+    /// Get http method which returns all persons
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [HttpGet]
     public ActionResult<IEnumerable<Person>> GetAll()
     {
         var persons = repo.GetPersons().Result;
@@ -27,10 +30,14 @@ public class PersonController(PersonRepository repo) : ControllerBase
         return Ok(persons);
     }
 
-    // GET api/<PersonController>/5
+    /// <summary>
+    /// Get method which returns a specific person with a id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [HttpGet("{id}")]
     public ActionResult<Person> Get(int id)
     {
         try
@@ -44,11 +51,15 @@ public class PersonController(PersonRepository repo) : ControllerBase
         }
     }
 
-    // POST api/<PersonController>
+    /// <summary>
+    /// Post method requires json person in body
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [HttpPost]
     public async Task<ActionResult<Person>> Post([FromBody] Person value)
     {
         if (value == null)
@@ -66,11 +77,16 @@ public class PersonController(PersonRepository repo) : ControllerBase
         }
     }
 
-    // PUT api/<PersonController>/5
+    /// <summary>
+    /// Put method which updates person with a specified id, person json values must be from body
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [HttpPut("{id}")]
     public ActionResult<Person> Put(int id, [FromBody] Person value)
     {
         if (value == null)
@@ -96,7 +112,11 @@ public class PersonController(PersonRepository repo) : ControllerBase
         }
     }
 
-    // DELETE api/<PersonController>/5
+    /// <summary>
+    /// Delete method removes person with specified id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -3,6 +3,9 @@ using PromillePartner_BackEnd.Models;
 
 namespace PromillePartner_BackEnd.Data;
 
+/// <summary>
+/// DbContext it retrieves connectionstring from secret json
+/// </summary>
 public class VoresDbContext : DbContext
 {
     public DbSet<Person> Persons { get; set; }
