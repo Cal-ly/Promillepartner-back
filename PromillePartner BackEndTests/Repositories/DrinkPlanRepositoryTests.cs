@@ -53,22 +53,6 @@ public class DrinkPlanRepositoryTests
     }
 
     [TestMethod]
-    public async Task UpdateDrukplan()
-    {
-        // Arrange
-        DrinkPlan drinkPlan = new() { Identifier = "bob", DrinkPlanen = new() { new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 }, new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 }, new() { ID = 1, DrinkName = "Florida", TimeDifference = 123.123 } } };
-        var persons = new List<DrinkPlan> { drinkPlan };
-        var mockSet = persons.AsQueryable().BuildMockDbSet();
-        _mockContext!.Setup(m => m.Set<DrinkPlan>()).Returns(mockSet.Object);
-
-        // Act
-        var result = await _repository.UpdateDrinkPlan("bob", drinkPlan);
-
-        // Assert
-        Assert.AreEqual(drinkPlan, result);
-    }
-
-    [TestMethod]
     public async Task GetDrukPlanById()
     {
         // Arran

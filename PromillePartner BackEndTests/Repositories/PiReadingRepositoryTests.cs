@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PromillePartner_BackEnd.Data;
 using PromillePartner_BackEnd.Models;
 using PromillePartner_BackEnd.Repositories;
 using System;
@@ -12,11 +13,11 @@ namespace PromillePartner_BackEnd.Repositories.Tests
     [TestClass()]
     public class PiReadingRepositoryTests
     {
-        PiReadingRepository _repo = new();
+        PiReadingRepository _repo;
         [TestInitialize()]
-        public void TestReset()
+        public void TestReset(VoresDbContext context)
         {
-            _repo = new();
+            _repo = new(context);
            
         }
         [TestMethod()]
@@ -31,7 +32,7 @@ namespace PromillePartner_BackEnd.Repositories.Tests
             _repo.AddPiReading(input2);
             _repo.AddPiReading(input3);
             //assert
-            Assert.AreEqual(3, _repo.GetPiReadings().Count());
+            Assert.AreEqual(3, _repo.GetPiReadings().Result.Count());
             Assert.AreEqual(1, _repo.GetPiReading(1).Id);
             Assert.AreEqual(2, _repo.GetPiReading(2).Id);
             Assert.AreEqual(3, _repo.GetPiReading(3).Id);

@@ -20,15 +20,19 @@ public class DrinkPlanRepository(VoresDbContext context)
     /// <exception cref="ArgumentNullException">Thrown if the person is null.</exception>
     public async Task<DrinkPlan> AddDrinkPlan(DrinkPlan drinkPlan)
     {
-        if (drinkPlan == null)
+        if (drinkPlan == null) // if drinkplan is invalid
         {
             throw new ArgumentNullException(nameof(drinkPlan), "Person cannot be null");
         }
-        await _context.AddAsync(drinkPlan);
-        await _context.SaveChangesAsync();
+        await _context.AddAsync(drinkPlan); // add
+        await _context.SaveChangesAsync(); // save
         return drinkPlan;
     }
 
+    /// <summary>
+    /// this method return all drinkplan objects found in the database
+    /// </summary>
+    /// <returns>All DrinkPlan Repositories</returns>
     public async Task<List<DrinkPlan>> Get()
     {
         return await _context.Set<DrinkPlan?>().Include(d => d.DrinkPlanen).AsNoTracking().ToListAsync();
@@ -43,65 +47,58 @@ public class DrinkPlanRepository(VoresDbContext context)
     public async Task<DrinkPlan?> GetDrinkPlan(string identifier)
     {
         return await _context.Set<DrinkPlan>()
-                                    .Include(d => d.DrinkPlanen)
-                                    .Where(d => d.Identifier == identifier)
-                                    .FirstOrDefaultAsync();
+                                    .Include(d => d.DrinkPlanen)                // Important to include all of these
+                                    .Where(d => d.Identifier == identifier)     // but only if the identifier matches
+                                    .FirstOrDefaultAsync();                     // find the first object with identifier
 
     }
-
 
     /// <summary>
-    /// Updates a person with the given Id.
+    /// Find a drinkplan with given identifier
     /// </summary>
-    /// <param name="id">The Id of the person to update.</param>
-    /// <param name="person">The updated person data.</param>
-    /// <returns>The updated person.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if the Id is less than 1.</exception>
-    /// <exception cref="ArgumentNullException">Thrown if the person is null.</exception>
-    /// <exception cref="KeyNotFoundException">Thrown if the person with the specified Id is not found.</exception>
-    public async Task<DrinkPlan> UpdateDrinkPlan(string id, DrinkPlan person)
-    {
-        if (person == null)
-        {
-            throw new ArgumentNullException(nameof(person), "Person cannot be null");
-        }
-
-        var foundDrinkPlan = await _context.Set<DrinkPlan>().Include(nameof(person.DrinkPlanen)).FirstOrDefaultAsync(p => p.Identifier == id);
-
-        foundDrinkPlan.DrinkPlanen = new();
-        foreach (var drink in person.DrinkPlanen)
-        {
-            foundDrinkPlan.DrinkPlanen.Add(drink);
-        }
-        await _context.SaveChangesAsync();
-        return foundDrinkPlan;
-    }
-
+    /// <param name="identifier">identifier used to find drink plan</param>
+    /// <returns>The drink plan or null if it can't find it</returns>
     public async Task<DrinkPlan?> GetDrinkPlanByIdentifier(string identifier)
     {
-        return await _context.Set<DrinkPlan>()
+        return await _context.Set<DrinkPlan>()                          
             .FirstOrDefaultAsync(dp => dp.Identifier == identifier);
     }
 
+    /// <summary>
+    /// updates an existing drink plan with a new drink plan
+    /// </summary>
+    /// <param name="drikkeplan">The new drink plan</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">if the new drinkplan is not valid</exception>
+    /// <exception cref="Exception">if no drink plan in the database contains the same identifier as the new drinkplan</exception>
     public async Task<DrinkPlan?> UpdateDrinkPlan(DrinkPlan drikkeplan)
     {
         if(drikkeplan == null)
         {
             throw new ArgumentNullException();
         }
-        var foundDrinkPlan = await _context.Set<DrinkPlan>().Include(nameof(drikkeplan.DrinkPlanen)).FirstOrDefaultAsync(p => p.Identifier == drikkeplan.Identifier);
+
+        // Find a drink plan in the database with the same identifier as the drink plan given as argument
+        var foundDrinkPlan = await _context.Set<DrinkPlan>()
+                                           .Include(nameof(drikkeplan.DrinkPlanen))
+                                           .FirstOrDefaultAsync(p => p.Identifier == drikkeplan.Identifier);
+
+        // if no drinkplan is found throw exception
         if (foundDrinkPlan == null)
         {
             throw new Exception();
         }
-        foundDrinkPlan.DrinkPlanen = new();
+
+        foundDrinkPlan.DrinkPlanen = new(); // clear all data in the existing drink plan
+
+        // Add the values of the new drink plan to the existing drink plan
         foreach (var drink in drikkeplan.DrinkPlanen)
         {
             foundDrinkPlan.DrinkPlanen.Add(drink);
         }
-        foundDrinkPlan.TimeStamp = drikkeplan.TimeStamp;
-        await _context.SaveChangesAsync();
-        return drikkeplan;
+        foundDrinkPlan.TimeStamp = drikkeplan.TimeStamp;    // set timestamp
+        await _context.SaveChangesAsync();                  // save
+        return drikkeplan;                                  // return the updated drink plan
     }
 
 }
